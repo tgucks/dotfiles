@@ -11,4 +11,4 @@ RUN apt-get update && apt-get install -y sudo \
 USER testuser
 WORKDIR /home/testuser
 
-CMD ["bash"]
+CMD ["bash", "-c", "cd ~/dotfiles && ./install.sh && exec zsh"]
