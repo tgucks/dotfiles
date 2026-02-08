@@ -8,8 +8,10 @@ if [[ "$(uname)" == "Linux" ]]; then
     build-essential \
     curl \
     file \
+    fonts-firacode \
     git \
     locales \
+    unzip \
     zsh \
     && sudo rm -rf /var/lib/apt/lists/*
 
@@ -33,7 +35,7 @@ fi
 
 # --- Brew packages ---
 echo "Installing packages..."
-brew install pure
+brew bundle --file=~/dotfiles/Brewfile
 
 # --- Symlinks ---
 echo "Creating symlinks..."
