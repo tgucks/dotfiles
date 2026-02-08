@@ -1,4 +1,5 @@
 brew "pure"
+brew "tmux"
 brew "zsh-autosuggestions"
 brew "zsh-completions"
 brew "zsh-history-substring-search"

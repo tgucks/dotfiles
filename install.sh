@@ -46,5 +46,13 @@ fi
 # --- Symlinks ---
 echo "Creating symlinks..."
 ln -sf ~/dotfiles/zsh/.zshrc ~/.zshrc
+ln -sf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
+
+# --- TPM (Tmux Plugin Manager) ---
+if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
+  echo "Installing TPM..."
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+fi
+~/.tmux/plugins/tpm/bin/install_plugins
 
 echo "Done! Restart your shell or run: source ~/.zshrc"
