@@ -37,6 +37,12 @@ fi
 echo "Installing packages..."
 brew bundle --file=~/dotfiles/Brewfile
 
+# --- Oh My Zsh ---
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+  echo "Installing Oh My Zsh..."
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
 # --- Symlinks ---
 echo "Creating symlinks..."
 ln -sf ~/dotfiles/zsh/.zshrc ~/.zshrc

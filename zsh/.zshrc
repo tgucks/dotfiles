@@ -27,12 +27,21 @@ setopt HIST_REDUCE_BLANKS
 setopt AUTO_CD
 setopt CORRECT
 
-# --- Completions ---
-autoload -Uz compinit && compinit
+# --- Oh My Zsh ---
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME=""
+plugins=(git)
+fpath+="$(brew --prefix)/share/zsh/site-functions"
+source "$ZSH/oh-my-zsh.sh"
 
 # --- Prompt (Pure) ---
 autoload -U promptinit && promptinit
 prompt pure
+
+# --- Plugins (Homebrew) ---
+source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+source "$(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 # --- Local overrides ---
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
