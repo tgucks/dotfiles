@@ -1,14 +1,38 @@
-#!/bin/bash
+# ~/.zshrc — minimal portable config (machine-specific goes in ~/.zshrc.local)
 
-# Uncomment when ready
-# ln -sf ~/dotfiles/nvim ~/.config/nvim
-# ln -sf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
-# ln -sf ~/dotfiles/zsh/.zshrc ~/.zshrc
+# --- Homebrew ---
+if [[ -d /opt/homebrew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -d /home/linuxbrew/.linuxbrew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
 
-# Temp testing
-ln -s ~/dotfiles/nvim ~/.config/nvim-fresh
-export TMUX_PLUGIN_MANAGER_PATH='~/dotfiles/tmux/plugins'
+# --- PATH ---
+path=(/usr/local/sbin $HOME/.local/bin $path)
+typeset -U path
 
-alias vf='NVIM_APPNAME=nvim-fresh nvim'
-alias zshf='ZDOTDIR=~/dotfiles/zsh zsh'
-alias tmuxf='tmux -f ~/dotfiles/tmux/tmux.conf new-session -s fresh'
+# --- Editor ---
+export EDITOR=vim
+
+# --- History ---
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
+
+# --- Options ---
+setopt AUTO_CD
+setopt CORRECT
+
+# --- Completions ---
+autoload -Uz compinit && compinit
+
+# --- Prompt (Pure) ---
+autoload -U promptinit && promptinit
+prompt pure
+
+# --- Local overrides ---
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
