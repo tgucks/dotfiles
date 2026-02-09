@@ -55,4 +55,12 @@ if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
 fi
 ~/.tmux/plugins/tpm/bin/install_plugins
 
-echo "Done! Restart your shell or run: source ~/.zshrc"
+# --- Set default shell to zsh ---
+ZSH_PATH="$(which zsh)"
+if [[ "$SHELL" != *"zsh"* ]] && [[ -n "$ZSH_PATH" ]]; then
+  echo "Changing default shell to zsh..."
+  grep -qxF "$ZSH_PATH" /etc/shells || echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
+  sudo chsh -s "$ZSH_PATH" "$(whoami)"
+fi
+
+echo "Done! Restart your shell or run: exec zsh"
