@@ -9,4 +9,5 @@ brew "zsh-syntax-highlighting"
 if OS.mac?
   brew "orbstack"
   cask "font-fira-code"
+  cask "font-fira-code-nerd-font"
 end
