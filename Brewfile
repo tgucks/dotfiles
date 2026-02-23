@@ -1,3 +1,4 @@
+brew "neovim"
 brew "pure"
 brew "tmux"
 brew "zsh-autosuggestions"
