@@ -11,6 +11,7 @@ if [[ "$(uname)" == "Linux" ]]; then
     fonts-firacode \
     git \
     locales \
+    neovim \
     unzip \
     zsh \
     && sudo rm -rf /var/lib/apt/lists/*
@@ -20,22 +21,15 @@ if [[ "$(uname)" == "Linux" ]]; then
   export LANG=en_US.UTF-8
 fi
 
-# --- Homebrew ---
-if ! command -v brew &>/dev/null; then
-  echo "Installing Homebrew..."
-  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-  # Add brew to PATH for the rest of this script
-  if [[ -d /opt/homebrew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  elif [[ -d /home/linuxbrew/.linuxbrew ]]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# --- Homebrew + Brewfile (macOS) ---
+if [[ "$(uname)" == "Darwin" ]]; then
+  if ! command -v brew &>/dev/null; then
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
+  echo "Installing from Brewfile..."
+  brew bundle --file=~/dotfiles/Brewfile || echo "Warning: some Homebrew packages failed to install, continuing..."
 fi
-
-# --- Brew packages ---
-echo "Installing packages..."
-brew bundle --file=~/dotfiles/Brewfile
 
 # --- Oh My Zsh ---
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
@@ -47,6 +41,14 @@ fi
 echo "Creating symlinks..."
 ln -sf ~/dotfiles/zsh/.zshrc ~/.zshrc
 ln -sf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
+ln -sf ~/dotfiles/nvim ~/.config/nvim
+
+# --- Neovim plugins ---
+if command -v nvim &>/dev/null; then
+  echo "Installing Neovim plugins..."
+  nvim --headless "+Lazy! sync" +qa 2>&1 || true
+  nvim --headless "+TSUpdate" +qa 2>&1 || true
+fi
 
 # --- TPM (Tmux Plugin Manager) ---
 if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then

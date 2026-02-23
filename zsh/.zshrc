@@ -16,7 +16,8 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
 # --- Editor ---
-export EDITOR=vim
+export EDITOR=nvim
+alias vim=nvim
 
 # --- History ---
 HISTFILE=~/.zsh_history
@@ -35,10 +36,10 @@ setopt CORRECT
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""
 plugins=(git)
-fpath+="$(brew --prefix)/share/zsh/site-functions"
 source "$ZSH/oh-my-zsh.sh"
 
 # --- Prompt (Pure) ---
+fpath+="$(brew --prefix)/share/zsh/site-functions"
 autoload -U promptinit && promptinit
 prompt pure
 
