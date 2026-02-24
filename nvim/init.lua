@@ -14,11 +14,20 @@ vim.opt.rtp:prepend(lazypath)
 vim.opt.number = true
 vim.opt.termguicolors = true
 
+-- Leader must be set before plugins load so plugin keymaps pick it up
+vim.g.mapleader = ","
+
 -- Default indentation: 2 spaces
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 2
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
+
+-- Reload config
+vim.keymap.set("n", "<leader>r", function()
+  dofile(vim.fn.stdpath("config") .. "/init.lua")
+  vim.notify("Config reloaded")
+end, { desc = "Reload config" })
 
 -- Plugins
 require("lazy").setup({
@@ -54,9 +63,11 @@ require("lazy").setup({
       require("mason").setup()
     end,
   },
+  -- LSP progress indicator (spinner in the corner while gopls loads)
+  { "j-hui/fidget.nvim", opts = {} },
   {
     "williamboman/mason-lspconfig.nvim",
-    dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig", "hrsh7th/cmp-nvim-lsp" },
+    dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig", "hrsh7th/cmp-nvim-lsp", "j-hui/fidget.nvim" },
     config = function()
       require("mason-lspconfig").setup({
         ensure_installed = { "gopls" },
@@ -76,7 +87,7 @@ require("lazy").setup({
           map("gD",         vim.lsp.buf.declaration,    "Go to declaration")
           map("gr",         vim.lsp.buf.references,     "References")
           map("gi",         vim.lsp.buf.implementation, "Go to implementation")
-          map("K",          vim.lsp.buf.hover,          "Hover docs")
+          map("K",          function() vim.lsp.buf.hover({ border = "rounded", max_width = 80 }) end, "Hover docs")
           map("<leader>rn", vim.lsp.buf.rename,         "Rename symbol")
           map("<leader>ca", vim.lsp.buf.code_action,    "Code action")
           map("[d",         vim.diagnostic.goto_prev,   "Prev diagnostic")
@@ -85,7 +96,7 @@ require("lazy").setup({
           -- Show hover docs automatically after cursor is still for updatetime ms
           vim.api.nvim_create_autocmd("CursorHold", {
             buffer = buf,
-            callback = function() vim.lsp.buf.hover() end,
+            callback = function() vim.lsp.buf.hover({ border = "rounded", max_width = 80 }) end,
           })
         end,
       })
@@ -113,6 +124,16 @@ require("lazy").setup({
         },
       })
       vim.lsp.enable("gopls")
+
+      -- Rounded borders on diagnostic float
+      vim.diagnostic.config({
+        float = { border = "rounded", source = true },
+      })
+
+      -- Float popup colours: lighter content bg, dark bg behind the border chars
+      -- so the border sits flush at the edge of the lighter area
+      vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#44475a" })
+      vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#bd93f9", bg = "#282a36" })
     end,
   },
 
