@@ -17,6 +17,13 @@ vim.opt.termguicolors = true
 -- Plugins
 require("lazy").setup({
   {
+    "Mofiqul/dracula.nvim",
+    priority = 1000,
+    config = function()
+      vim.cmd("colorscheme dracula")
+    end,
+  },
+  {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     config = function()
