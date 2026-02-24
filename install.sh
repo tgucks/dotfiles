@@ -41,6 +41,7 @@ fi
 echo "Creating symlinks..."
 ln -sf ~/dotfiles/zsh/.zshrc ~/.zshrc
 ln -sf ~/dotfiles/zsh/.zsh_aliases ~/.zsh_aliases
+ln -sf ~/dotfiles/zsh/.zsh_correction ~/.zsh_correction
 ln -sf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
 ln -sfn ~/dotfiles/nvim ~/.config/nvim
 

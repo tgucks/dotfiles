@@ -29,7 +29,9 @@ setopt HIST_REDUCE_BLANKS
 
 # --- Options ---
 setopt AUTO_CD
-setopt CORRECT
+
+# --- Correction ---
+[[ -f "${ZDOTDIR:-$HOME}/.zsh_correction" ]] && source "${ZDOTDIR:-$HOME}/.zsh_correction"
 
 # --- Oh My Zsh ---
 export ZSH="$HOME/.oh-my-zsh"
