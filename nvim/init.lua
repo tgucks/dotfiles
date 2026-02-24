@@ -24,6 +24,14 @@ vim.opt.softtabstop = 2
 require("lazy").setup({
   -- Respect per-repo .editorconfig settings (overrides defaults above)
   { "editorconfig/editorconfig-vim" },
+  -- Auto-close pairs: (), [], {}, "", '', ``, etc.
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = function()
+      require("nvim-autopairs").setup()
+    end,
+  },
   {
     "Mofiqul/dracula.nvim",
     priority = 1000,

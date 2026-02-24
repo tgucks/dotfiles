@@ -17,7 +17,6 @@ export LC_ALL=en_US.UTF-8
 
 # --- Editor ---
 export EDITOR=nvim
-alias vim=nvim
 
 # --- History ---
 HISTFILE=~/.zsh_history
@@ -47,6 +46,9 @@ prompt pure
 source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 source "$(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
 source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+
+# --- Aliases ---
+[[ -f "${ZDOTDIR:-$HOME}/.zsh_aliases" ]] && source "${ZDOTDIR:-$HOME}/.zsh_aliases"
 
 # --- Local overrides ---
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

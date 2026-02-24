@@ -1,0 +1,4 @@
+# --- Aliases ---
+
+alias vim=nvim
+alias "git co"="git checkout"
