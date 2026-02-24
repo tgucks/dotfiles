@@ -32,6 +32,14 @@ require("lazy").setup({
       require("nvim-autopairs").setup()
     end,
   },
+  -- Change/delete/add surrounding pairs: cs"', ds(, ysiw], etc.
+  {
+    "kylechui/nvim-surround",
+    event = "VeryLazy",
+    config = function()
+      require("nvim-surround").setup()
+    end,
+  },
   {
     "Mofiqul/dracula.nvim",
     priority = 1000,

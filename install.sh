@@ -42,7 +42,15 @@ echo "Creating symlinks..."
 ln -sf ~/dotfiles/zsh/.zshrc ~/.zshrc
 ln -sf ~/dotfiles/zsh/.zsh_aliases ~/.zsh_aliases
 ln -sf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
-ln -sf ~/dotfiles/nvim ~/.config/nvim
+ln -sfn ~/dotfiles/nvim ~/.config/nvim
+
+# --- Git config ---
+# Include shared aliases/config without overwriting local gitconfig
+if ! grep -qF "dotfiles/git/gitconfig" ~/.gitconfig 2>/dev/null; then
+  echo "" >> ~/.gitconfig
+  echo "[include]" >> ~/.gitconfig
+  echo "  path = ~/dotfiles/git/gitconfig" >> ~/.gitconfig
+fi
 
 # --- Neovim plugins ---
 if command -v nvim &>/dev/null; then
