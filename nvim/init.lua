@@ -29,6 +29,16 @@ vim.keymap.set("n", "<leader>r", function()
   vim.notify("Config reloaded")
 end, { desc = "Reload config" })
 
+-- Close all floating windows and suppress auto-reopen until cursor moves
+vim.keymap.set("n", "<Esc>", function()
+  vim.b[vim.api.nvim_get_current_buf()].lsp_float_state = "dismissed"
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_get_config(win).relative ~= "" then
+      pcall(vim.api.nvim_win_close, win, true)
+    end
+  end
+end, { desc = "Close floats" })
+
 -- Plugins
 require("lazy").setup({
   -- Respect per-repo .editorconfig settings (overrides defaults above)
@@ -74,6 +84,29 @@ require("lazy").setup({
         automatic_installation = true,
       })
 
+      -- Float state is stored in vim.b so the global <Esc> keymap can reach it.
+      -- States: nil (fresh) | "hover" | "diagnostic" | "dismissed"
+      -- CursorHold only auto-shows when state is nil (i.e. cursor just moved here).
+      -- CursorMoved resets state to nil so the next hold auto-shows again.
+
+      local function close_floats()
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+          if vim.api.nvim_win_get_config(win).relative ~= "" then
+            pcall(vim.api.nvim_win_close, win, true)
+          end
+        end
+      end
+
+      local function show_diagnostic(buf)
+        vim.b[buf].lsp_float_state = "diagnostic"
+        vim.diagnostic.open_float({ border = "rounded", source = true, scope = "cursor", focusable = false })
+      end
+
+      local function show_hover(buf)
+        vim.b[buf].lsp_float_state = "hover"
+        vim.lsp.buf.hover({ border = "rounded", max_width = 80, focusable = false })
+      end
+
       -- Keymaps + auto-hover, scoped to buffers with an active LSP
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
@@ -87,16 +120,42 @@ require("lazy").setup({
           map("gD",         vim.lsp.buf.declaration,    "Go to declaration")
           map("gr",         vim.lsp.buf.references,     "References")
           map("gi",         vim.lsp.buf.implementation, "Go to implementation")
-          map("K",          function() vim.lsp.buf.hover({ border = "rounded", max_width = 80 }) end, "Hover docs")
           map("<leader>rn", vim.lsp.buf.rename,         "Rename symbol")
           map("<leader>ca", vim.lsp.buf.code_action,    "Code action")
           map("[d",         vim.diagnostic.goto_prev,   "Prev diagnostic")
           map("]d",         vim.diagnostic.goto_next,   "Next diagnostic")
 
-          -- Show hover docs automatically after cursor is still for updatetime ms
+          -- K cycles: hover -> diagnostic -> hover
+          map("K", function()
+            local diags = vim.diagnostic.get(buf, { lnum = vim.fn.line(".") - 1 })
+            close_floats()
+            if vim.b[buf].lsp_float_state ~= "hover" then
+              show_hover(buf)
+            elseif #diags > 0 then
+              show_diagnostic(buf)
+            else
+              show_hover(buf)
+            end
+          end, "Cycle hover/diagnostic")
+
+          -- Reset state when cursor moves so the next CursorHold auto-shows
+          vim.api.nvim_create_autocmd("CursorMoved", {
+            buffer = buf,
+            callback = function() vim.b[buf].lsp_float_state = nil end,
+          })
+
+          -- Auto-show on hold, but only when state is nil (cursor just arrived here)
           vim.api.nvim_create_autocmd("CursorHold", {
             buffer = buf,
-            callback = function() vim.lsp.buf.hover({ border = "rounded", max_width = 80 }) end,
+            callback = function()
+              if vim.b[buf].lsp_float_state ~= nil then return end
+              local diags = vim.diagnostic.get(buf, { lnum = vim.fn.line(".") - 1 })
+              if #diags > 0 then
+                show_diagnostic(buf)
+              else
+                show_hover(buf)
+              end
+            end,
           })
         end,
       })
