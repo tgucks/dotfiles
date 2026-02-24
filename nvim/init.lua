@@ -14,8 +14,16 @@ vim.opt.rtp:prepend(lazypath)
 vim.opt.number = true
 vim.opt.termguicolors = true
 
+-- Default indentation: 2 spaces
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 2
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+
 -- Plugins
 require("lazy").setup({
+  -- Respect per-repo .editorconfig settings (overrides defaults above)
+  { "editorconfig/editorconfig-vim" },
   {
     "Mofiqul/dracula.nvim",
     priority = 1000,
