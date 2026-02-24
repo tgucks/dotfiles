@@ -12,7 +12,17 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Basic options
 vim.opt.number = true
+vim.opt.relativenumber = true
 vim.opt.termguicolors = true
+
+-- Active window: hybrid line numbers (current = absolute, others = relative)
+-- Inactive windows: absolute only
+vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
+  callback = function() vim.opt_local.relativenumber = true end,
+})
+vim.api.nvim_create_autocmd({ "BufLeave", "WinLeave" }, {
+  callback = function() vim.opt_local.relativenumber = false end,
+})
 
 -- Leader must be set before plugins load so plugin keymaps pick it up
 vim.g.mapleader = ","
