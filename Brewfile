@@ -1,3 +1,4 @@
+brew "fzf"
 brew "neovim"
 brew "pure"
 brew "tmux"

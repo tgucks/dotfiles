@@ -49,6 +49,11 @@ source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 source "$(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
 source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
+# --- fzf (fuzzy history search via ctrl+r) ---
+if command -v fzf &>/dev/null; then
+  source <(fzf --zsh)
+fi
+
 # --- Aliases ---
 [[ -f "${ZDOTDIR:-$HOME}/.zsh_aliases" ]] && source "${ZDOTDIR:-$HOME}/.zsh_aliases"
 
