@@ -1,3 +1,4 @@
+brew "diff-so-fancy"
 brew "fzf"
 brew "neovim"
 brew "pure"
