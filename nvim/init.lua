@@ -58,12 +58,6 @@ vim.keymap.set('i', 'kj', '<Esc>', { desc = "Exit insert mode" })
 vim.keymap.set('n', '<leader>/', 'gcc', { remap = true, desc = "Toggle comment" })
 vim.keymap.set('v', '<leader>/', 'gc',  { remap = true, desc = "Toggle comment" })
 
--- Reload config
-vim.keymap.set("n", "<leader>r", function()
-  dofile(vim.fn.stdpath("config") .. "/init.lua")
-  vim.notify("Config reloaded")
-end, { desc = "Reload config" })
-
 -- Close all floating windows and suppress auto-reopen until cursor moves
 vim.keymap.set("n", "<Esc>", function()
   vim.b[vim.api.nvim_get_current_buf()].lsp_float_state = "dismissed"
@@ -317,7 +311,16 @@ require("lazy").setup({
       })
     end,
   },
-
+  -- Git signs in the gutter (added/changed/removed lines)
+  {
+    "lewis6991/gitsigns.nvim",
+    config = function()
+      require("gitsigns").setup()
+      vim.keymap.set("n", "<leader>gb", "<cmd>Gitsigns blame<CR>", { desc = "Git blame" })
+      vim.keymap.set("n", "]c", "<cmd>Gitsigns next_hunk<CR>", { desc = "Next git hunk" })
+      vim.keymap.set("n", "[c", "<cmd>Gitsigns prev_hunk<CR>", { desc = "Prev git hunk" })
+    end,
+  },
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
