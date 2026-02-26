@@ -69,13 +69,33 @@ require("lazy").setup({
       require("nvim-surround").setup()
     end,
   },
+  -- Theme
   {
-    "Mofiqul/dracula.nvim",
+    "catppuccin/nvim",
+    name = "catppuccin",
     priority = 1000,
     config = function()
-      vim.cmd("colorscheme dracula")
-    end,
+      require("catppuccin").setup({
+        transparent_background = true,
+      })
+    end
   },
+  -- {
+  --   "Mofiqul/dracula.nvim",
+  --   priority = 1000,
+  --   config = function()
+  --     vim.cmd("colorscheme dracula")
+  --   end,
+  -- },
+  -- {
+  --   "craftzdog/solarized-osaka.nvim",
+  --   lazy = false,
+  --   priority = 1000,
+  --   opts = {},
+  --   config = function()
+  --     vim.cmd("colorscheme solarized-osaka")
+  --   end,
+  -- },
   -- LSP: Mason installs language servers automatically
   {
     "williamboman/mason.nvim",
@@ -283,3 +303,5 @@ require("lazy").setup({
     end,
   },
 })
+
+vim.cmd.colorscheme "catppuccin-macchiato"
