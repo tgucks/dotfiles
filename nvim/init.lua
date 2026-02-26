@@ -20,6 +20,8 @@ vim.opt.relativenumber = true
 vim.opt.termguicolors = true
 vim.opt.list = true
 vim.opt.listchars = { trail = "·" }
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
 
 -- Active window: hybrid line numbers (current = absolute, others = relative)
 -- Inactive windows: absolute only
