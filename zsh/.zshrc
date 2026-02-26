@@ -30,6 +30,7 @@ prompt pure
 source "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 source "/opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
 source "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source ~/.oh-my-zsh/plugins/git/git.plugin.zsh
 
 # --- fzf (fuzzy history search via ctrl+r) ---
 if command -v fzf &>/dev/null; then
