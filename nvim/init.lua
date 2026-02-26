@@ -33,6 +33,9 @@ vim.opt.shiftwidth = 2
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
 
+-- Forward-delete in insert mode (fn+delete on macOS)
+vim.keymap.set('i', '<C-d>', '<Right><BS>', { desc = "Forward delete" })
+
 -- Reload config
 vim.keymap.set("n", "<leader>r", function()
   dofile(vim.fn.stdpath("config") .. "/init.lua")
