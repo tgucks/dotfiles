@@ -1,12 +1,3 @@
-# ~/.zshrc — minimal portable config (machine-specific goes in ~/.zshrc.local)
-
-# --- Homebrew ---
-if [[ -d /opt/homebrew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [[ -d /home/linuxbrew/.linuxbrew ]]; then
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-
 # --- PATH ---
 path=(/usr/local/sbin $HOME/.local/bin $path)
 typeset -U path
@@ -30,21 +21,15 @@ setopt HIST_REDUCE_BLANKS
 # --- Options ---
 setopt AUTO_CD
 
-# --- Oh My Zsh ---
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME=""
-plugins=(git)
-source "$ZSH/oh-my-zsh.sh"
-
 # --- Prompt (Pure) ---
-fpath+="$(brew --prefix)/share/zsh/site-functions"
+fpath+="/opt/homebrew/share/zsh/site-functions"
 autoload -U promptinit && promptinit
 prompt pure
 
 # --- Plugins (Homebrew) ---
-source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-source "$(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+source "/opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+source "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 # --- fzf (fuzzy history search via ctrl+r) ---
 if command -v fzf &>/dev/null; then
@@ -53,6 +38,3 @@ fi
 
 # --- Aliases ---
 [[ -f "${ZDOTDIR:-$HOME}/.zsh_aliases" ]] && source "${ZDOTDIR:-$HOME}/.zsh_aliases"
-
-# --- Local overrides ---
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
