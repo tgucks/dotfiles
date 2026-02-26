@@ -83,6 +83,7 @@ require("lazy").setup({
         filters = { dotfiles = false },
       })
       vim.keymap.set("n", "\\", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file tree" })
+      vim.keymap.set("n", "|", "<cmd>NvimTreeFindFile<CR>", { desc = "Reveal file in tree" })
     end,
   },
   -- Auto-close pairs: (), [], {}, "", '', ``, etc.
