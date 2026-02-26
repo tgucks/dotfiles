@@ -19,7 +19,7 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.termguicolors = true
 vim.opt.list = true
-vim.opt.listchars = { trail = "·" }
+vim.opt.listchars = { trail = "·", tab = "  " }
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.clipboard = "unnamedplus"
