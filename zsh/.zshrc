@@ -21,6 +21,13 @@ setopt HIST_REDUCE_BLANKS
 # --- Options ---
 setopt AUTO_CD
 
+# --- Oh-My-Zsh ---
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME=""
+plugins=(git)
+
+source $ZSH/oh-my-zsh.sh
+
 # --- Prompt (Pure) ---
 fpath+="/opt/homebrew/share/zsh/site-functions"
 autoload -U promptinit && promptinit
@@ -30,7 +37,6 @@ prompt pure
 source "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 source "/opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
 source "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-source ~/.oh-my-zsh/plugins/git/git.plugin.zsh
 
 # --- fzf (fuzzy history search via ctrl+r) ---
 if command -v fzf &>/dev/null; then
