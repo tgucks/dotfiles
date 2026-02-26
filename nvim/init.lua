@@ -42,6 +42,11 @@ vim.opt.softtabstop = 2
 -- Forward-delete in insert mode (fn+delete on macOS)
 vim.keymap.set('i', '<C-d>', '<Right><BS>', { desc = "Forward delete" })
 
+-- Exit insert mode without reaching for Esc
+vim.keymap.set('i', 'jj', '<Esc>', { desc = "Exit insert mode" })
+vim.keymap.set('i', 'kk', '<Esc>', { desc = "Exit insert mode" })
+vim.keymap.set('i', 'kj', '<Esc>', { desc = "Exit insert mode" })
+
 -- Comment toggle: current line (normal) or selection (visual)
 vim.keymap.set('n', '<leader>/', 'gcc', { remap = true, desc = "Toggle comment" })
 vim.keymap.set('v', '<leader>/', 'gc',  { remap = true, desc = "Toggle comment" })
