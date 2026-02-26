@@ -58,6 +58,9 @@ vim.keymap.set('i', 'kj', '<Esc>', { desc = "Exit insert mode" })
 vim.keymap.set('n', '<leader>/', 'gcc', { remap = true, desc = "Toggle comment" })
 vim.keymap.set('v', '<leader>/', 'gc',  { remap = true, desc = "Toggle comment" })
 
+-- Paste in visual mode without clobbering the yank register
+vim.keymap.set('x', 'p', '"_dP', { desc = "Paste without overwriting register" })
+
 -- Close all floating windows and suppress auto-reopen until cursor moves
 vim.keymap.set("n", "<Esc>", function()
   vim.b[vim.api.nvim_get_current_buf()].lsp_float_state = "dismissed"
