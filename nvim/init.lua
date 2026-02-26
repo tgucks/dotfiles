@@ -116,6 +116,7 @@ require("lazy").setup({
     config = function()
       require("catppuccin").setup({
         transparent_background = true,
+        auto_integrations = true,
       })
     end
   },
@@ -346,6 +347,9 @@ require("lazy").setup({
             "--glob", "!.git",
           },
           file_ignore_patterns = { "^%.git/" },
+          mappings = {
+            i = { ["<Esc>"] = require("telescope.actions").close },
+          },
         },
         pickers = {
           find_files = { hidden = true },
