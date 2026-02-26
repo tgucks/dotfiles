@@ -126,7 +126,11 @@ require("lazy").setup({
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("lualine").setup({
-        options = { theme = "catppuccin" },
+        options = {
+          theme = "catppuccin-macchiato",
+          -- section_separators = { left = "\u{E0B4}", right = "\u{E0B6}" },
+          -- component_separators = { left = "", right = "" },
+        },
         sections = {
           lualine_a = {'mode'},
           lualine_b = {
