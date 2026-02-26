@@ -1,3 +1,4 @@
 # --- Aliases ---
 
 alias vim=nvim
+alias gcm='git commit --message'
