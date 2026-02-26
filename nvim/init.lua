@@ -137,7 +137,14 @@ require("lazy").setup({
     end,
   },
   -- LSP progress indicator (spinner in the corner while gopls loads)
-  { "j-hui/fidget.nvim", opts = {} },
+  {
+    "j-hui/fidget.nvim",
+    opts = {
+      notification = {
+        window = { winblend = 0 },
+      },
+    },
+  },
   {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig", "hrsh7th/cmp-nvim-lsp", "j-hui/fidget.nvim" },
