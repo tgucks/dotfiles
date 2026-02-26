@@ -25,8 +25,8 @@ vim.opt.smartcase = true
 vim.opt.clipboard = "unnamedplus"
 
 -- Undercurl
-vim.cmd([[let &t_Cs = "\e[4:3m"]])
-vim.cmd([[let &t_Ce = "\e[4:0m"]])
+-- vim.cmd([[let &t_Cs = "\e[4:3m"]])
+-- vim.cmd([[let &t_Ce = "\e[4:0m"]])
 
 -- Active window: hybrid line numbers (current = absolute, others = relative)
 -- Inactive windows: absolute only
@@ -269,15 +269,15 @@ require("lazy").setup({
       -- Rounded borders on diagnostic float
       vim.diagnostic.config({
         float = { border = "rounded", source = true },
-        underline = true,
+        -- underline = true,
       })
 
       -- Float popup colours: lighter content bg, dark bg behind the border chars
       -- so the border sits flush at the edge of the lighter area
       vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#44475a" })
       vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#bd93f9", bg = "#282a36" })
-      vim.api.nvim_set_hl(0, "DiagnosticUnderlineError", { undercurl = true, sp = "#f38ba8" })
-      vim.api.nvim_set_hl(0, "DiagnosticUnderlineWarn", { undercurl = true, sp = "#f9e2af" })
+      -- vim.api.nvim_set_hl(0, "DiagnosticUnderlineError", { undercurl = true, sp = "#f38ba8" })
+      -- vim.api.nvim_set_hl(0, "DiagnosticUnderlineWarn", { undercurl = true, sp = "#f9e2af" })
     end,
   },
 
