@@ -14,6 +14,8 @@ vim.opt.rtp:prepend(lazypath)
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.termguicolors = true
+vim.opt.list = true
+vim.opt.listchars = { trail = "·" }
 
 -- Active window: hybrid line numbers (current = absolute, others = relative)
 -- Inactive windows: absolute only
@@ -308,6 +310,28 @@ require("lazy").setup({
 })
 
 vim.cmd.colorscheme "catppuccin-macchiato"
+
+-- Subtle colour for trailing-whitespace dots (below the catppuccin surface colours)
+vim.api.nvim_set_hl(0, "Whitespace", { fg = "#494d64" })
+
+-- Trim trailing whitespace and empty lines at end of file on explicit :w.
+-- Skipped if .editorconfig sets trim_trailing_whitespace = false.
+-- Uses BufWritePre so it runs on :w but not on the noautocmd auto-saves.
+vim.api.nvim_create_autocmd("BufWritePre", {
+  callback = function()
+    local ec = vim.b.editorconfig or {}
+    if ec.trim_trailing_whitespace == "false" then return end
+    local cursor = vim.api.nvim_win_get_cursor(0)
+    -- Trim trailing whitespace on every line
+    vim.cmd([[keeppatterns %s/\s\+$//e]])
+    -- Trim trailing blank lines at end of file
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    local last = #lines
+    while last > 1 and lines[last]:match("^%s*$") do last = last - 1 end
+    if last < #lines then vim.api.nvim_buf_set_lines(0, last, -1, false, {}) end
+    pcall(vim.api.nvim_win_set_cursor, 0, cursor)
+  end,
+})
 
 -- Auto-save: silently write whenever the buffer is modified.
 -- Uses `noautocmd` so BufWritePre/BufWritePost hooks (e.g. Go formatter) do NOT fire.
