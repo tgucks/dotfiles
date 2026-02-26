@@ -1,3 +1,7 @@
+-- Disable netrw in favour of nvim-tree
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -62,6 +66,17 @@ end, { desc = "Close floats" })
 require("lazy").setup({
   -- Respect per-repo .editorconfig settings (overrides defaults above)
   { "editorconfig/editorconfig-vim" },
+  -- File tree
+  {
+    "nvim-tree/nvim-tree.lua",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("nvim-tree").setup({
+        filters = { dotfiles = false },
+      })
+      vim.keymap.set("n", "\\", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file tree" })
+    end,
+  },
   -- Auto-close pairs: (), [], {}, "", '', ``, etc.
   {
     "windwp/nvim-autopairs",
