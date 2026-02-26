@@ -82,6 +82,11 @@ require("lazy").setup({
     config = function()
       require("nvim-tree").setup({
         filters = { dotfiles = false },
+        actions = {
+          open_file = {
+            window_picker = { enable = false },
+          },
+        },
       })
       vim.keymap.set("n", "\\", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file tree" })
       vim.keymap.set("n", "|", "<cmd>NvimTreeFindFile<CR>", { desc = "Reveal file in tree" })
@@ -258,6 +263,7 @@ require("lazy").setup({
         },
       })
       vim.lsp.enable("gopls")
+      vim.lsp.enable("bashls")
 
       -- Rounded borders on diagnostic float
       vim.diagnostic.config({
@@ -322,6 +328,18 @@ require("lazy").setup({
       vim.keymap.set("n", "<leader>gb", "<cmd>Gitsigns blame<CR>", { desc = "Git blame" })
       vim.keymap.set("n", "]c", "<cmd>Gitsigns next_hunk<CR>", { desc = "Next git hunk" })
       vim.keymap.set("n", "[c", "<cmd>Gitsigns prev_hunk<CR>", { desc = "Prev git hunk" })
+    end,
+  },
+  -- Fuzzy finder
+  {
+    "nvim-telescope/telescope.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      local builtin = require("telescope.builtin")
+      vim.keymap.set("n", "<leader>f", builtin.find_files,  { desc = "Find files" })
+      vim.keymap.set("n", "<leader>fg", builtin.live_grep,   { desc = "Live grep" })
+      vim.keymap.set("n", "<leader>fb", builtin.buffers,     { desc = "Find buffers" })
+      vim.keymap.set("n", "<leader>fh", builtin.help_tags,   { desc = "Help tags" })
     end,
   },
   -- Scrollbar with git and diagnostic markers
