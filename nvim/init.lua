@@ -38,6 +38,10 @@ vim.opt.softtabstop = 2
 -- Forward-delete in insert mode (fn+delete on macOS)
 vim.keymap.set('i', '<C-d>', '<Right><BS>', { desc = "Forward delete" })
 
+-- Comment toggle: current line (normal) or selection (visual)
+vim.keymap.set('n', '<leader>/', 'gcc', { remap = true, desc = "Toggle comment" })
+vim.keymap.set('v', '<leader>/', 'gc',  { remap = true, desc = "Toggle comment" })
+
 -- Reload config
 vim.keymap.set("n", "<leader>r", function()
   dofile(vim.fn.stdpath("config") .. "/init.lua")
