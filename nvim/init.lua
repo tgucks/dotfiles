@@ -67,9 +67,10 @@ vim.keymap.set("n", "<leader>J", function()
   local line = vim.api.nvim_get_current_line()
   local indent = line:match("^(%s*)")
   local inner = indent .. string.rep(" ", vim.fn.shiftwidth())
+  local comma_indent = line:match("[{%[]") and inner or indent
   local result = line
   result = result:gsub("([{%[])%s*", "%1\n" .. inner)
-  result = result:gsub(",%s*", ",\n" .. inner)
+  result = result:gsub(",%s*", ",\n" .. comma_indent)
   result = result:gsub("%s*([%]}])", "\n" .. indent .. "%1")
   vim.api.nvim_buf_set_lines(0, lnum - 1, lnum, false, vim.split(result, "\n"))
 end, { desc = "Expand inline to multiline" })
