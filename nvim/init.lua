@@ -308,3 +308,25 @@ require("lazy").setup({
 })
 
 vim.cmd.colorscheme "catppuccin-macchiato"
+
+-- Auto-save: silently write whenever the buffer is modified.
+-- Uses `noautocmd` so BufWritePre/BufWritePost hooks (e.g. Go formatter) do NOT fire.
+-- The formatter still runs on explicit :w as normal.
+local autosave_group = vim.api.nvim_create_augroup("AutoSave", { clear = true })
+local function buf_is_saveable()
+  return vim.bo.modified and vim.bo.buftype == "" and vim.fn.expand("%") ~= ""
+end
+-- On change: save silently without triggering BufWritePre hooks (e.g. formatter)
+vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
+  group = autosave_group,
+  callback = function()
+    if buf_is_saveable() then vim.cmd("silent! noautocmd write") end
+  end,
+})
+-- On exit/focus loss: save normally so BufWritePre hooks (e.g. formatter) fire
+vim.api.nvim_create_autocmd({ "FocusLost", "BufLeave" }, {
+  group = autosave_group,
+  callback = function()
+    if buf_is_saveable() then vim.cmd("silent! write") end
+  end,
+})
