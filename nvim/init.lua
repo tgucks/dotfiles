@@ -324,6 +324,15 @@ require("lazy").setup({
       vim.keymap.set("n", "[c", "<cmd>Gitsigns prev_hunk<CR>", { desc = "Prev git hunk" })
     end,
   },
+  -- Scrollbar with git and diagnostic markers
+  {
+    "petertriho/nvim-scrollbar",
+    dependencies = { "lewis6991/gitsigns.nvim" },
+    config = function()
+      require("scrollbar").setup()
+      require("scrollbar.handlers.gitsigns").setup()
+    end,
+  },
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
