@@ -228,6 +228,10 @@ require("lazy").setup({
         pattern = "*.go",
         callback = function()
           vim.lsp.buf.format({ async = false })
+          -- gofmt rewrites indentation as tabs; re-apply editorconfig so the
+          -- tab display width stays at whatever the project specifies, not the
+          -- global default of 2.
+          vim.cmd("EditorConfigReload")
         end,
       })
 
