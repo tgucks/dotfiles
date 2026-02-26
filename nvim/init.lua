@@ -22,6 +22,7 @@ vim.opt.list = true
 vim.opt.listchars = { trail = "·" }
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
+vim.opt.clipboard = "unnamedplus"
 
 -- Active window: hybrid line numbers (current = absolute, others = relative)
 -- Inactive windows: absolute only
