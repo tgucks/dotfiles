@@ -43,6 +43,8 @@ ln -sf ~/dotfiles/zsh/.zshrc ~/.zshrc
 ln -sf ~/dotfiles/zsh/.zsh_aliases ~/.zsh_aliases
 ln -sf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
 ln -sfn ~/dotfiles/nvim ~/.config/nvim
+mkdir -p ~/.config/ghostty
+ln -sf ~/dotfiles/ghostty/config ~/.config/ghostty/config
 
 # --- Git config ---
 # Include shared aliases/config without overwriting local gitconfig

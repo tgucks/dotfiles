@@ -26,6 +26,7 @@ Re-running is safe — all symlinks and the git `[include]` are idempotent.
 | `zsh/.zsh_aliases` | `~/.zsh_aliases` |
 | `tmux/tmux.conf` | `~/.tmux.conf` |
 | `nvim/` | `~/.config/nvim` |
+| `ghostty/config` | `~/.config/ghostty/config` |
 
 The nvim directory symlink uses `ln -sfn` (not `-sf`) to avoid creating a recursive symlink on re-runs.
 

@@ -1,0 +1,9 @@
+theme = "Solarized Osaka Night"
+
+background-opacity = 0.9
+background-blur-radius = 20
+background = #031219
+
+font-family = "PlemolJP Console NF"
+
+macos-option-as-alt = true
