@@ -1,5 +1,5 @@
 # --- PATH ---
-path=(/usr/local/sbin $HOME/.local/bin $HOME/bin $path)
+path=(/usr/local/sbin $HOME/.local/bin $HOME/bin $HOME/go/bin $path)
 typeset -U path
 
 # --- Locale ---
@@ -55,3 +55,7 @@ add-zsh-hook precmd _restore_cursor
 # --- Autocompletions ---
 source <(kubectl completion zsh)
 source <(minikube completion zsh)
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

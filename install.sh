@@ -76,4 +76,7 @@ if [[ "$SHELL" != *"zsh"* ]] && [[ -n "$ZSH_PATH" ]]; then
   sudo chsh -s "$ZSH_PATH" "$(whoami)"
 fi
 
+# --- Install nvm ---
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+
 echo "Done! Restart your shell or run: exec zsh"
