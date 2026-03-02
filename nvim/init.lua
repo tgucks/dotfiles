@@ -417,6 +417,18 @@ require("lazy").setup({
       end, { desc = "Live grep visual selection" })
     end,
   },
+  -- Git diff/merge tool
+  {
+    "sindrets/diffview.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("diffview").setup()
+      vim.keymap.set("n", "<leader>gd", "<cmd>DiffviewOpen<CR>",        { desc = "Open diffview" })
+      -- vim.keymap.set("n", "<leader>gh", "<cmd>DiffviewFileHistory %<CR>", { desc = "File git history" })
+      -- vim.keymap.set("n", "<leader>gH", "<cmd>DiffviewFileHistory<CR>",  { desc = "Repo git history" })
+      vim.keymap.set("n", "<leader>gx", "<cmd>DiffviewClose<CR>",        { desc = "Close diffview" })
+    end,
+  },
   -- Scrollbar with git and diagnostic markers
   {
     "petertriho/nvim-scrollbar",
