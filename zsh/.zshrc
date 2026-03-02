@@ -54,3 +54,4 @@ add-zsh-hook precmd _restore_cursor
 
 # --- Autocompletions ---
 source <(kubectl completion zsh)
+source <(minikube completion zsh)
