@@ -1,5 +1,5 @@
 # --- PATH ---
-path=(/usr/local/sbin $HOME/.local/bin $path)
+path=(/usr/local/sbin $HOME/.local/bin $HOME/bin $path)
 typeset -U path
 
 # --- Locale ---
