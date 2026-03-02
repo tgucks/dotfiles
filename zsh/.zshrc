@@ -51,3 +51,6 @@ fi
 # emit their own cursor-reset on exit don't leave the cursor in the wrong shape.
 _restore_cursor() { printf '\033[1 q' }
 add-zsh-hook precmd _restore_cursor
+
+# --- Autocompletions ---
+source <(kubectl completion zsh)
