@@ -45,3 +45,9 @@ fi
 
 # --- Aliases ---
 [[ -f "${ZDOTDIR:-$HOME}/.zsh_aliases" ]] && source "${ZDOTDIR:-$HOME}/.zsh_aliases"
+
+# --- Cursor ---
+# Restore blinking block before each prompt, so TUI programs (e.g. nvim) that
+# emit their own cursor-reset on exit don't leave the cursor in the wrong shape.
+_restore_cursor() { printf '\033[1 q' }
+add-zsh-hook precmd _restore_cursor

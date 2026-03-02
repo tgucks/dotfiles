@@ -477,6 +477,13 @@ require("lazy").setup({
 
 vim.cmd.colorscheme "catppuccin-macchiato"
 
+-- Restore terminal cursor (blinking bar, DECSCUSR 5) when leaving nvim.
+-- Neovim resets the cursor on exit before the shell's precmd hook fires,
+-- so we send the escape sequence explicitly to prevent a stale cursor shape.
+vim.api.nvim_create_autocmd("VimLeave", {
+  callback = function() io.write("\027[1 q") end,
+})
+
 -- Subtle colour for trailing-whitespace dots (below the catppuccin surface colours)
 vim.api.nvim_set_hl(0, "Whitespace", { fg = "#494d64" })
 
