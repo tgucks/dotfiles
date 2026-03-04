@@ -27,6 +27,8 @@ Re-running is safe — all symlinks and the git `[include]` are idempotent.
 | `tmux/tmux.conf` | `~/.tmux.conf` |
 | `nvim/` | `~/.config/nvim` |
 | `ghostty/config` | `~/.config/ghostty/config` |
+| `claude/settings.json` | `~/.claude/settings.json` |
+| `claude/statusline-command.sh` | `~/.claude/statusline-command.sh` |
 
 The nvim directory symlink uses `ln -sfn` (not `-sf`) to avoid creating a recursive symlink on re-runs.
 

@@ -45,6 +45,9 @@ ln -sf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
 ln -sfn ~/dotfiles/nvim ~/.config/nvim
 mkdir -p ~/.config/ghostty
 ln -sf ~/dotfiles/ghostty/config ~/.config/ghostty/config
+mkdir -p ~/.claude
+ln -sf ~/dotfiles/claude/settings.json ~/.claude/settings.json
+ln -sf ~/dotfiles/claude/statusline-command.sh ~/.claude/statusline-command.sh
 
 # --- Git config ---
 # Include shared aliases/config without overwriting local gitconfig
