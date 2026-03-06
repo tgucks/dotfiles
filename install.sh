@@ -48,6 +48,7 @@ ln -sf ~/dotfiles/ghostty/config ~/.config/ghostty/config
 mkdir -p ~/.claude
 ln -sf ~/dotfiles/claude/settings.json ~/.claude/settings.json
 ln -sf ~/dotfiles/claude/statusline-command.sh ~/.claude/statusline-command.sh
+ln -sf ~/dotfiles/rg/.ripgreprc ~/.config/.ripgreprc
 
 # --- Git config ---
 # Include shared aliases/config without overwriting local gitconfig
