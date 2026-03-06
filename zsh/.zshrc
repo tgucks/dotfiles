@@ -20,6 +20,7 @@ setopt HIST_REDUCE_BLANKS
 
 # --- Options ---
 setopt AUTO_CD
+setopt GLOB_DOTS
 
 # --- Oh-My-Zsh ---
 export ZSH="$HOME/.oh-my-zsh"
@@ -34,6 +35,7 @@ autoload -U promptinit && promptinit
 prompt pure
 
 # --- Plugins (Homebrew) ---
+export HOMEBREW_NO_ENV_HINTS=1
 source "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 source "/opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
 source "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
