@@ -49,6 +49,8 @@ mkdir -p ~/.claude
 ln -sf ~/dotfiles/claude/settings.json ~/.claude/settings.json
 ln -sf ~/dotfiles/claude/statusline-command.sh ~/.claude/statusline-command.sh
 ln -sf ~/dotfiles/rg/.ripgreprc ~/.config/.ripgreprc
+mkdir -p ~/.config/bat
+ln -sf ~/dotfiles/bat/config ~/.config/bat/config
 
 # --- Git config ---
 # Include shared aliases/config without overwriting local gitconfig
