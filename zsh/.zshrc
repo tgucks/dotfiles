@@ -65,3 +65,11 @@ export NVM_DIR="$HOME/.nvm"
 
 # --- ripgrep config ---
 export RIPGREP_CONFIG_PATH="$HOME/.config/.ripgreprc"
+
+# --- Python pyenv ---
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
+
+# --- Local overrides ---
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
