@@ -46,6 +46,16 @@ vim.opt.shiftwidth = 2
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
 
+-- Python convention is 4 spaces (matches ruff's formatter default)
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "python",
+  callback = function()
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.tabstop = 4
+    vim.opt_local.softtabstop = 4
+  end,
+})
+
 -- Forward-delete in insert mode (fn+delete on macOS)
 vim.keymap.set('i', '<C-d>', '<Right><BS>', { desc = "Forward delete" })
 
@@ -205,7 +215,7 @@ require("lazy").setup({
     dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig", "hrsh7th/cmp-nvim-lsp", "j-hui/fidget.nvim" },
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = { "gopls" },
+        ensure_installed = { "gopls", "basedpyright", "ruff" },
         automatic_installation = true,
       })
 
@@ -297,6 +307,15 @@ require("lazy").setup({
         end,
       })
 
+      -- Format Python files on save (ruff LSP handles formatting)
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        pattern = "*.py",
+        callback = function()
+          -- Pin to ruff so basedpyright (no formatter) doesn't receive the request
+          vim.lsp.buf.format({ async = false, name = "ruff" })
+        end,
+      })
+
       -- updatetime controls how long the cursor must be still before CursorHold fires
       vim.opt.updatetime = 1000
 
@@ -313,6 +332,35 @@ require("lazy").setup({
       })
       vim.lsp.enable("gopls")
       vim.lsp.enable("bashls")
+
+      -- Python: type checking, hover, completions, go-to-definition
+      vim.lsp.config("basedpyright", {
+        capabilities = capabilities,
+        settings = {
+          basedpyright = {
+            analysis = {
+              typeCheckingMode = "standard", -- "off" | "basic" | "standard" | "strict" | "all"
+              autoImportCompletions = true,
+            },
+          },
+        },
+      })
+      vim.lsp.enable("basedpyright")
+
+      -- Python: linting diagnostics + formatting
+      vim.lsp.config("ruff", {
+        capabilities = capabilities,
+        init_options = {
+          settings = {
+            lineLength = 88,
+          },
+        },
+        on_attach = function(client)
+          -- Disable ruff hover — basedpyright's type-aware hover is richer
+          client.server_capabilities.hoverProvider = false
+        end,
+      })
+      vim.lsp.enable("ruff")
 
       -- Rounded borders on diagnostic float
       vim.diagnostic.config({
