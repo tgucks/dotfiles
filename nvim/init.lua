@@ -215,7 +215,7 @@ require("lazy").setup({
     dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig", "hrsh7th/cmp-nvim-lsp", "j-hui/fidget.nvim" },
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = { "gopls", "basedpyright", "ruff" },
+        ensure_installed = { "gopls", "basedpyright", "ruff", "ts_ls", "eslint-lsp" },
         automatic_installation = true,
       })
 
@@ -316,6 +316,14 @@ require("lazy").setup({
         end,
       })
 
+      -- Auto-fix ESLint violations on save for JS/TS/React files
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        pattern = { "*.js", "*.jsx", "*.ts", "*.tsx", "*.mjs", "*.cjs" },
+        callback = function()
+          vim.cmd("EslintFixAll")
+        end,
+      })
+
       -- updatetime controls how long the cursor must be still before CursorHold fires
       vim.opt.updatetime = 1000
 
@@ -361,6 +369,38 @@ require("lazy").setup({
         end,
       })
       vim.lsp.enable("ruff")
+
+      -- JS/TS/React: completions, type checking, hover, go-to-definition
+      vim.lsp.config("ts_ls", {
+        capabilities = capabilities,
+        settings = {
+          typescript = {
+            inlayHints = {
+              includeInlayParameterNameHints = "all",
+              includeInlayFunctionParameterTypeHints = true,
+              includeInlayVariableTypeHints = true,
+              includeInlayPropertyDeclarationTypeHints = true,
+              includeInlayFunctionLikeReturnTypeHints = true,
+            },
+          },
+          javascript = {
+            inlayHints = {
+              includeInlayParameterNameHints = "all",
+              includeInlayFunctionParameterTypeHints = true,
+              includeInlayVariableTypeHints = true,
+              includeInlayPropertyDeclarationTypeHints = true,
+              includeInlayFunctionLikeReturnTypeHints = true,
+            },
+          },
+        },
+      })
+      vim.lsp.enable("ts_ls")
+
+      -- JS/TS/React: linting and auto-fix via ESLint LSP
+      vim.lsp.config("eslint", {
+        capabilities = capabilities,
+      })
+      vim.lsp.enable("eslint")
 
       -- Rounded borders on diagnostic float
       vim.diagnostic.config({
