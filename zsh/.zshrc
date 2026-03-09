@@ -1,5 +1,5 @@
 # --- PATH ---
-path=(/usr/local/sbin $HOME/.local/bin $HOME/bin $HOME/go/bin $path)
+path=(/opt/homebrew/bin /opt/homebrew/sbin /usr/local/sbin $HOME/.local/bin $HOME/bin $HOME/go/bin $path)
 typeset -U path
 
 # --- Locale ---
