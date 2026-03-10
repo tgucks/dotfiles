@@ -215,7 +215,7 @@ require("lazy").setup({
     dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig", "hrsh7th/cmp-nvim-lsp", "j-hui/fidget.nvim" },
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = { "gopls", "basedpyright", "ruff", "ts_ls", "eslint-lsp" },
+        ensure_installed = { "gopls", "basedpyright", "ruff", "ts_ls", "eslint" },
         automatic_installation = true,
       })
 
