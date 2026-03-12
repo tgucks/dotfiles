@@ -1,11 +1,15 @@
 # --- Aliases ---
 
 alias vim=nvim
+alias c=claude
+
+# --- Git ---
 alias gcm='git commit --message'
 alias gap='git add --patch'
 
 # --- use bat for help output ---
 alias -g -- --help='--help 2>&1 | bat --language=help --style=plain'
+alias -g -- -h='--help 2>&1 | bat --language=help --style=plain'
 alias bathelp='bat --plain --language=help'
 help() {
     "$@" --help 2>&1 | bathelp
