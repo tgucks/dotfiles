@@ -23,20 +23,20 @@ claude() {
   local local_settings=~/.claude/settings.local.json
   local live=~/.claude/settings.json
 
-  if [[ -f "$local_settings" ]]; then
-    local files=("$base")
-    [[ -f "$live" ]] && files+=("$live")
-    files+=("$local_settings")
+  local files=()
+  [[ -f "$live" ]] && files+=("$live")
+  files+=("$base")
+  [[ -f "$local_settings" ]] && files+=("$local_settings")
 
-    jq -s '
-      def deepmerge(a; b):
-        if (a | type) == "object" and (b | type) == "object" then
-          reduce (b | keys[]) as $k (a; .[$k] = deepmerge(a[$k]; b[$k]))
-        elif (a | type) == "array" and (b | type) == "array" then
-          (a + b | unique)
-        else b end;
-      reduce .[1:][] as $x (.[0]; deepmerge(.; $x))
-    ' "${files[@]}" > "${live}.tmp" && mv "${live}.tmp" "$live"
-  fi
+  jq -s '
+    def deepmerge(a; b):
+      a as $a | b as $b |
+      if ($a | type) == "object" and ($b | type) == "object" then
+        reduce ($b | keys[]) as $k ($a; .[$k] = deepmerge($a[$k]; $b[$k]))
+      elif ($a | type) == "array" and ($b | type) == "array" then
+        ($a + $b | unique)
+      else $b end;
+    reduce .[1:][] as $x (.[0]; deepmerge(.; $x))
+  ' "${files[@]}" > "${live}.tmp" && mv "${live}.tmp" "$live"
   command claude "$@"
 }
