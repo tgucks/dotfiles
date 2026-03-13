@@ -187,8 +187,13 @@ if [ -n "$used_pct" ]; then
 fi
 
 # ════════════════════════════════════════════════════════════════════════════
-# OUTPUT — one printf per line so Claude Code treats each as a separate row
+# OUTPUT
 # ════════════════════════════════════════════════════════════════════════════
+output=""
 for line in "$line1" "$line2" "$line3"; do
-  [ -n "$line" ] && printf '%s\n' "$line"
+  if [ -n "$line" ]; then
+    output="${output:+$output$'\n'}$line"
+  fi
 done
+
+printf '%b%s%b' "" "$output" "$R"
