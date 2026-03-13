@@ -6,6 +6,18 @@ alias vim=nvim
 alias gcm='git commit --message'
 alias gap='git add --patch'
 
+# Open current GitHub repo directory in browser
+ghopen() {
+  local remote url subpath branch
+  remote=$(git remote get-url origin 2>/dev/null) || { echo "Not a git repo or no origin remote"; return 1; }
+  # Normalize SSH and HTTPS remote URLs to https://github.com/...
+  url=$(echo "$remote" | sed -E 's|git@github\.com:|https://github.com/|; s|\.git$||')
+  [[ "$url" != *github.com* ]] && { echo "Not a GitHub remote: $remote"; return 1; }
+  subpath=$(git rev-parse --show-prefix 2>/dev/null)
+  branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD)
+  open "${url}/tree/${branch}/${subpath%/}"
+}
+
 # --- use bat for help output ---
 alias -g -- --help='--help 2>&1 | bat --language=help --style=plain'
 alias -g -- -h='--help 2>&1 | bat --language=help --style=plain'
