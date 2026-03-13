@@ -27,11 +27,24 @@ Re-running is safe — all symlinks and the git `[include]` are idempotent.
 | `tmux/tmux.conf` | `~/.tmux.conf` |
 | `nvim/` | `~/.config/nvim` |
 | `ghostty/config` | `~/.config/ghostty/config` |
-| `claude/settings.json` | `~/.claude/settings.json` |
 | `claude/statusline-command.sh` | `~/.claude/statusline-command.sh` |
 | `bat/config` | `~/.config/bat/config` |
 
+`claude/settings.json` is **not** symlinked — see the Claude settings section below.
+
 The nvim directory symlink uses `ln -sfn` (not `-sf`) to avoid creating a recursive symlink on re-runs.
+
+### Claude settings
+
+`claude/settings.json` holds shared, non-sensitive settings and is tracked in git. Machine-specific settings (API base URLs, internal marketplaces, env vars, etc.) go in `~/.claude/settings.local.json` — this file lives outside the repo and is never committed.
+
+The `claude()` shell function in `zsh/.zsh_aliases` merges all three layers at launch time:
+
+1. `~/dotfiles/claude/settings.json` — shared base
+2. `~/.claude/settings.json` — live file (preserves any changes Claude writes automatically)
+3. `~/.claude/settings.local.json` — machine-specific overrides (highest precedence)
+
+To add machine-specific settings on a new machine, create `~/.claude/settings.local.json` manually. There is no install step — the function picks it up automatically.
 
 ### Git config split
 
