@@ -20,6 +20,8 @@
       "mcp__plugin_context7_context7__query-docs",
       "mcp__atlas__getAccessibleAtlassianResources",
       "Bash(git clone:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
       "Bash(ls:*)",
       "Bash(grep:*)"
     ]
