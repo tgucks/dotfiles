@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 # Claude Code status line — sleek, multi-line, full-featured
 
 input=$(cat)
