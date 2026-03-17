@@ -1,7 +1,7 @@
 # theme = "Solarized Osaka Night"
 theme = "Catppuccin Macchiato"
 
-background-opacity = 0.9
+background-opacity = 0.8
 background-blur-radius = 20
 # background = #031219
 
