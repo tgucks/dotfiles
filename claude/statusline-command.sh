@@ -189,10 +189,11 @@ fi
 # ════════════════════════════════════════════════════════════════════════════
 # OUTPUT
 # ════════════════════════════════════════════════════════════════════════════
+NL=$'\n'
 output=""
 for line in "$line1" "$line2" "$line3"; do
   if [ -n "$line" ]; then
-    output="${output:+$output$'\n'}$line"
+    output="${output:+$output${NL}}$line"
   fi
 done
 
