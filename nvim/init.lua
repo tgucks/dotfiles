@@ -107,7 +107,7 @@ require("lazy").setup({
       local api = require("nvim-tree.api")
 
       require("nvim-tree").setup({
-        filters = { dotfiles = false },
+        filters = { dotfiles = false, git_ignored = false },
         actions = {
           open_file = {
             window_picker = { enable = false },
