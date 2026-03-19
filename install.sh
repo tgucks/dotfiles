@@ -48,6 +48,8 @@ ln -sf ~/dotfiles/ghostty/config ~/.config/ghostty/config
 mkdir -p ~/.claude
 ln -sf ~/dotfiles/claude/statusline-command.sh ~/.claude/statusline-command.sh
 ln -sf ~/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
+mkdir -p ~/.claude/skills
+ln -sfn ~/dotfiles/claude/skills/scan-secrets ~/.claude/skills/scan-secrets
 ln -sf ~/dotfiles/rg/.ripgreprc ~/.config/.ripgreprc
 mkdir -p ~/.config/bat
 ln -sf ~/dotfiles/bat/config ~/.config/bat/config
