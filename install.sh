@@ -47,6 +47,8 @@ mkdir -p ~/.config/ghostty
 ln -sf ~/dotfiles/ghostty/config ~/.config/ghostty/config
 mkdir -p ~/.claude
 ln -sf ~/dotfiles/claude/statusline-command.sh ~/.claude/statusline-command.sh
+mkdir -p ~/.claude/hooks
+ln -sf ~/dotfiles/claude/fix-plugin-perms.sh ~/.claude/hooks/fix-plugin-perms.sh
 ln -sf ~/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
 mkdir -p ~/.claude/skills
 ln -sfn ~/dotfiles/claude/skills/scan-secrets ~/.claude/skills/scan-secrets

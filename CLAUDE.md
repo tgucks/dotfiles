@@ -28,6 +28,7 @@ Re-running is safe — all symlinks and the git `[include]` are idempotent.
 | `nvim/` | `~/.config/nvim` |
 | `ghostty/config` | `~/.config/ghostty/config` |
 | `claude/statusline-command.sh` | `~/.claude/statusline-command.sh` |
+| `claude/fix-plugin-perms.sh` | `~/.claude/hooks/fix-plugin-perms.sh` |
 | `claude/skills/scan-secrets/` | `~/.claude/skills/scan-secrets` |
 | `bat/config` | `~/.config/bat/config` |
 

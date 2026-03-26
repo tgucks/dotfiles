@@ -3,6 +3,19 @@
   "env": {
     "ENABLE_TOOL_SEARCH": true
   },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/fix-plugin-perms.sh"
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "zsh ~/.claude/statusline-command.sh"
