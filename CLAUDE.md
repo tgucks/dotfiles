@@ -4,53 +4,54 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-Portable dotfiles for zsh, neovim, and tmux. The install script bootstraps a new machine by installing dependencies and symlinking configs into place.
+Portable dotfiles for zsh, neovim, and tmux, managed with [chezmoi](https://chezmoi.io). The repo is the chezmoi source directory (`~/dotfiles`).
 
-## Bootstrap / install
+## Bootstrap / apply
 
 ```bash
-./install.sh
+chezmoi apply     # apply all configs
+chezmoi update    # git pull + apply
 ```
-
-Re-running is safe — all symlinks and the git `[include]` are idempotent.
 
 ## Architecture
 
-### Symlink model
+### chezmoi model
 
-`install.sh` symlinks config files into the locations each tool expects:
+chezmoi copies real files (not symlinks) from the source directory to the home directory. Files with `.tmpl` suffix are Go templates processed at apply time. Files with `modify_` prefix merge into existing targets instead of replacing them.
 
-| Dotfile | Symlinked to |
+Machine-specific values (git identity, API URLs, machine type) are stored in `~/.config/chezmoi/chezmoi.toml` and referenced in templates via `{{ .variableName }}`.
+
+### Source file mapping
+
+| Source | Target |
 |---|---|
-| `zsh/.zshrc` | `~/.zshrc` |
-| `zsh/.zsh_aliases` | `~/.zsh_aliases` |
-| `tmux/tmux.conf` | `~/.tmux.conf` |
-| `nvim/` | `~/.config/nvim` |
-| `ghostty/config` | `~/.config/ghostty/config` |
-| `claude/statusline-command.sh` | `~/.claude/statusline-command.sh` |
-| `claude/fix-plugin-perms.sh` | `~/.claude/hooks/fix-plugin-perms.sh` |
-| `claude/skills/scan-secrets/` | `~/.claude/skills/scan-secrets` |
-| `bat/config` | `~/.config/bat/config` |
-
-`claude/settings.json` is **not** symlinked — see the Claude settings section below.
-
-The nvim directory symlink uses `ln -sfn` (not `-sf`) to avoid creating a recursive symlink on re-runs.
+| `dot_zshrc.tmpl` | `~/.zshrc` |
+| `dot_zsh_aliases.tmpl` | `~/.zsh_aliases` |
+| `dot_tmux.conf` | `~/.tmux.conf` |
+| `dot_gitconfig.tmpl` | `~/.gitconfig` |
+| `dot_config/nvim/` | `~/.config/nvim/` |
+| `dot_config/ghostty/config` | `~/.config/ghostty/config` |
+| `dot_config/bat/config` | `~/.config/bat/config` |
+| `dot_config/dot_ripgreprc` | `~/.config/.ripgreprc` |
+| `dot_claude/` | `~/.claude/` |
 
 ### Claude settings
 
-`claude/settings.json` holds shared, non-sensitive settings and is tracked in git. Machine-specific settings (API base URLs, internal marketplaces, env vars, etc.) go in `~/.claude/settings.local.json` — this file lives outside the repo and is never committed.
+`dot_claude/modify_settings.json.tmpl` is a modify script that deep-merges managed settings into `~/.claude/settings.json`. Keys that Claude writes at runtime (e.g., `model`) are preserved. Machine-specific values (API URLs) come from `chezmoi.toml` data, never committed.
 
-The `claude()` shell function in `zsh/.zsh_aliases` merges all three layers at launch time:
+### Git config
 
-1. `~/dotfiles/claude/settings.json` — shared base
-2. `~/.claude/settings.json` — live file (preserves any changes Claude writes automatically)
-3. `~/.claude/settings.local.json` — machine-specific overrides (highest precedence)
+`dot_gitconfig.tmpl` generates `~/.gitconfig` with identity from chezmoi data, `[includeIf]` directives for work machines, and an `[include]` pointing to `git/gitconfig` for shared aliases.
 
-To add machine-specific settings on a new machine, create `~/.claude/settings.local.json` manually. There is no install step — the function picks it up automatically.
+### Scripts
 
-### Git config split
-
-Shared git aliases live in `git/gitconfig` (tracked). The install script appends an `[include]` pointing to it into the local `~/.gitconfig` (untracked), preserving any machine-specific or work identity config already there.
+| Script | Runs when |
+|---|---|
+| `run_once_before_01-install-packages.sh.tmpl` | Once (Homebrew/apt packages) |
+| `run_once_before_02-install-oh-my-zsh.sh` | Once (Oh My Zsh) |
+| `run_once_before_03-set-default-shell.sh` | Once (chsh to zsh) |
+| `run_onchange_after_nvim-plugins.sh.tmpl` | When `init.lua` changes |
+| `run_onchange_after_tpm-plugins.sh.tmpl` | When `tmux.conf` changes |
 
 ### Neovim plugins
 

@@ -1,32 +1,49 @@
 # dotfiles
 
-Portable dotfiles for zsh, neovim, and tmux.
+Portable dotfiles for zsh, neovim, and tmux, managed with [chezmoi](https://chezmoi.io).
 
 ## Quick start
 
+### New machine
 ```bash
-git clone https://github.com/tgucks/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-./install.sh
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply tgucks --source ~/dotfiles
 ```
 
-`install.sh` will:
-- Install [Homebrew](https://brew.sh) if not already present
-- Install packages (Pure prompt)
-- Symlink config files to your home directory
+### Existing machine
+```bash
+chezmoi update    # git pull + apply
+```
+
+## Daily workflow
+
+```bash
+chezmoi edit ~/.zshrc    # edit a managed file (opens source copy)
+chezmoi apply            # apply source -> home
+chezmoi cd               # cd into the source repo to commit/push
+
+chezmoi re-add ~/.zshrc  # pull back a direct edit into source
+chezmoi diff             # preview what apply would change
+```
+
+## Machine-specific config
+
+`chezmoi init` prompts for machine type (`personal`/`work`/`server`), git identity, and work-only values (API endpoints, etc.). These are stored in `~/.config/chezmoi/chezmoi.toml` (never committed). Templates use these values to generate the right config per machine.
 
 ## Structure
 
 ```
-zsh/.zshrc                # shared zsh config (symlinked to ~/.zshrc)
-nvim/                     # neovim config
-tmux/                     # tmux config
-claude/settings.json      # shared Claude Code settings (not symlinked — see below)
-install.sh                # bootstrap script for new machines
+dot_zshrc.tmpl              -> ~/.zshrc
+dot_zsh_aliases.tmpl        -> ~/.zsh_aliases
+dot_tmux.conf               -> ~/.tmux.conf
+dot_gitconfig.tmpl          -> ~/.gitconfig
+dot_config/nvim/            -> ~/.config/nvim/
+dot_config/ghostty/config   -> ~/.config/ghostty/config
+dot_config/bat/config       -> ~/.config/bat/config
+dot_config/dot_ripgreprc    -> ~/.config/.ripgreprc
+dot_claude/                 -> ~/.claude/ (settings merged via modify_ script)
+git/gitconfig               -> included via [include] in ~/.gitconfig
 ```
 
-## Machine-specific Claude settings
+## Claude settings
 
-`claude/settings.json` contains shared Claude Code settings tracked in git. To add settings that should only apply to one machine (API endpoints, internal tool marketplaces, env vars), create `~/.claude/settings.local.json` — it is not part of this repo.
-
-The `claude()` function in `zsh/.zsh_aliases` automatically merges `claude/settings.json`, the live `~/.claude/settings.json`, and `~/.claude/settings.local.json` on every invocation, with the local file taking highest precedence.
+`dot_claude/modify_settings.json.tmpl` deep-merges managed settings into `~/.claude/settings.json` at apply time. Keys that Claude writes at runtime (e.g., `model`) are preserved. Machine-specific values (API URLs) come from `chezmoi.toml` data.

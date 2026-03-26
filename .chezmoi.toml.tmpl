@@ -1,0 +1,28 @@
+{{- $machineType := promptStringOnce . "machineType" "Machine type (personal/work/server)" -}}
+{{- $isServer := promptBoolOnce . "isServer" "Is this a headless server/container (no GUI)" -}}
+{{- $gitName := promptStringOnce . "gitName" "Git user name" -}}
+{{- $gitEmail := promptStringOnce . "gitEmail" "Git email" -}}
+{{- $claudeApiBaseUrl := "" -}}
+{{- $claudeMarketplaceUrl := "" -}}
+{{- if eq $machineType "work" -}}
+{{-   $claudeApiBaseUrl = promptStringOnce . "claudeApiBaseUrl" "Claude API base URL (work proxy, or leave empty)" -}}
+{{-   $claudeMarketplaceUrl = promptStringOnce . "claudeMarketplaceUrl" "Claude marketplace URL (leave empty to skip)" -}}
+{{- end -}}
+
+sourceDir = {{ joinPath .chezmoi.homeDir "dotfiles" | quote }}
+
+[data]
+    machineType = {{ $machineType | quote }}
+    isServer = {{ $isServer }}
+    gitName = {{ $gitName | quote }}
+    gitEmail = {{ $gitEmail | quote }}
+    claudeApiBaseUrl = {{ $claudeApiBaseUrl | quote }}
+    claudeMarketplaceUrl = {{ $claudeMarketplaceUrl | quote }}
+
+[diff]
+    command = "nvim"
+    args = ["-d"]
+
+[merge]
+    command = "nvim"
+    args = ["-d"]

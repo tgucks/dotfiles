@@ -1,0 +1,77 @@
+#!/bin/bash
+# Merges managed settings into ~/.claude/settings.json
+# Preserves keys that Claude sets at runtime (e.g., model)
+
+DESIRED=$(cat <<'MANAGED'
+{
+  "autoUpdatesChannel": "latest",
+  "env": {
+{{- if .claudeApiBaseUrl }}
+    "ANTHROPIC_BASE_URL": {{ .claudeApiBaseUrl | toJson }},
+{{- end }}
+    "ENABLE_TOOL_SEARCH": "true"
+  },
+{{- if eq .machineType "work" }}
+  "apiKeyHelper": "~/.claude/claudecodeauth",
+{{- end }}
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/fix-plugin-perms.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "zsh ~/.claude/statusline-command.sh"
+  },
+  "permissions": {
+    "allow": [
+      "WebFetch",
+      "WebSearch",
+      "Read",
+      "Glob",
+      "Grep",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(git check-ignore:*)",
+      "Bash(git clone:*)",
+      "Bash(git log:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git status:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)"
+{{- if eq .machineType "work" }},
+      "mcp__atlas__getJiraIssue",
+      "mcp__atlas__getConfluencePage",
+      "mcp__atlas__getAccessibleAtlassianResources"
+{{- end }}
+    ]
+  }
+}
+MANAGED
+)
+
+CURRENT=$(cat)
+if [[ -z "$CURRENT" || "$CURRENT" == "{}" ]]; then
+  echo "$DESIRED"
+  exit 0
+fi
+
+echo "$CURRENT" | jq --argjson desired "$DESIRED" '
+  def deepmerge(a; b):
+    a as $a | b as $b |
+    if ($a | type) == "object" and ($b | type) == "object" then
+      reduce ($b | keys[]) as $k ($a; .[$k] = deepmerge(.[$k]; $b[$k]))
+    elif ($a | type) == "array" and ($b | type) == "array" then
+      $b
+    else $b end;
+  deepmerge(.; $desired)
+'

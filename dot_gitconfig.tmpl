@@ -1,0 +1,18 @@
+[user]
+    name = {{ .gitName }}
+    email = {{ .gitEmail }}
+{{ if eq .machineType "work" }}
+[includeIf "gitdir:~/dotfiles/"]
+    path = ~/.gitconfig-personal
+
+[includeIf "gitdir:~/code/armada/"]
+    path = ~/.gitconfig-personal
+
+[includeIf "gitdir:~/code/personal/"]
+    path = ~/.gitconfig-personal
+{{ end }}
+[include]
+    path = ~/dotfiles/git/gitconfig
+
+[core]
+    editor = nvim
