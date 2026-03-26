@@ -56,3 +56,20 @@ claude() {
   ' "${files[@]}" > "${live}.tmp" && mv "${live}.tmp" "$live"
   command claude "$@"
 }
+
+clear-claude-plugin-cache() {
+  local target="$HOME/.claude/plugins/cache"
+
+  if [[ "$1" != "-y" ]]; then
+    echo "Will delete: $target"
+    read -q "?Continue? [y/N] " || { echo; return 0; }
+    echo
+  fi
+
+  if rm -rf "$target"; then
+    echo "Cleared $target"
+  else
+    echo "Failed to clear $target" >&2
+    return 1
+  fi
+}
