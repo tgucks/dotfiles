@@ -35,6 +35,8 @@
       "Bash(git check-ignore:*)",
       "Bash(git clone:*)",
       "Bash(git log:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git ls-tree:*)",
       "Bash(git status:*)",
       "Bash(ls:*)",
       "Bash(grep:*)"
