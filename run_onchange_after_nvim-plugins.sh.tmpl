@@ -1,0 +1,9 @@
+#!/bin/bash
+# Runs when init.lua changes
+# init.lua hash: {{ include "dot_config/nvim/init.lua" | sha256sum }}
+
+if command -v nvim &>/dev/null; then
+    echo "Syncing Neovim plugins..."
+    nvim --headless "+Lazy! sync" +qa 2>&1 || true
+    nvim --headless "+TSUpdate" +qa 2>&1 || true
+fi

@@ -1,0 +1,13 @@
+#!/bin/bash
+# Runs when tmux.conf changes
+# tmux.conf hash: {{ include "dot_tmux.conf" | sha256sum }}
+
+if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
+    echo "Installing TPM..."
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" || true
+fi
+
+if [[ -x "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]]; then
+    echo "Installing tmux plugins..."
+    "$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
+fi

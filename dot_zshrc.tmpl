@@ -2,6 +2,15 @@
 path=(/usr/local/sbin $HOME/.local/bin $HOME/bin $HOME/go/bin $path)
 typeset -U path
 
+{{ if eq .chezmoi.os "darwin" -}}
+# --- Homebrew ---
+{{ if eq .chezmoi.arch "arm64" -}}
+eval "$(/opt/homebrew/bin/brew shellenv)"
+{{ else -}}
+eval "$(/usr/local/bin/brew shellenv)"
+{{ end -}}
+{{ end -}}
+
 # --- Locale ---
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
@@ -31,15 +40,23 @@ plugins=(git)
 source $ZSH/oh-my-zsh.sh
 
 # --- Prompt (Pure) ---
-fpath+="/opt/homebrew/share/zsh/site-functions"
+{{ if eq .chezmoi.os "darwin" -}}
+fpath+="$(brew --prefix)/share/zsh/site-functions"
+{{ end -}}
 autoload -U promptinit && promptinit
 prompt pure
 
-# --- Plugins (Homebrew) ---
+# --- Plugins ---
+{{ if eq .chezmoi.os "darwin" -}}
 export HOMEBREW_NO_ENV_HINTS=1
-source "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-source "/opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-source "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+source "$(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+{{ else -}}
+# Linux: source plugins from system packages if available
+[[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+[[ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+{{ end -}}
 
 # --- Aliases ---
 [[ -f "${ZDOTDIR:-$HOME}/.zsh_aliases" ]] && source "${ZDOTDIR:-$HOME}/.zsh_aliases"

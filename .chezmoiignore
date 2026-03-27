@@ -1,0 +1,13 @@
+# Repo files that should not be deployed to ~
+README.md
+LICENSE
+CLAUDE.md
+docs/**
+terminal/**
+git/**
+
+{{ if .isServer }}
+# Skip GUI/desktop configs on servers
+.config/ghostty/**
+.tmux.conf
+{{ end }}
