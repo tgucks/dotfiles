@@ -18,11 +18,3 @@ sourceDir = {{ joinPath .chezmoi.homeDir "dotfiles" | quote }}
     gitEmail = {{ $gitEmail | quote }}
     claudeApiBaseUrl = {{ $claudeApiBaseUrl | quote }}
     claudeMarketplaceUrl = {{ $claudeMarketplaceUrl | quote }}
-
-[diff]
-    command = "nvim"
-    args = ["-d"]
-
-[merge]
-    command = "nvim"
-    args = ["-d"]
