@@ -38,6 +38,7 @@ ZSH_DISABLE_COMPFIX=true
 plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
+zstyle ':completion:*' special-dirs false
 
 # --- Prompt (Pure) ---
 {{ if eq .chezmoi.os "darwin" -}}
