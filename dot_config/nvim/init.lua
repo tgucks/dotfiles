@@ -576,7 +576,19 @@ require("lazy").setup({
     "petertriho/nvim-scrollbar",
     dependencies = { "lewis6991/gitsigns.nvim" },
     config = function()
-      require("scrollbar").setup()
+      local colors = require("catppuccin.palettes").get_palette("macchiato")
+      require("scrollbar").setup({
+        handle = {
+          blend = 30,
+          color = colors.surface2,
+        },
+        marks = {
+          GitAdd    = { color = colors.green },
+          GitChange = { color = colors.yellow },
+          GitDelete = { color = colors.red },
+        },
+        excluded_filetypes = { "NvimTree", "neo-tree", "lazy", "mason" },
+      })
       require("scrollbar.handlers.gitsigns").setup()
     end,
   },
@@ -642,6 +654,15 @@ vim.cmd.colorscheme "catppuccin-macchiato"
 -- so we send the escape sequence explicitly to prevent a stale cursor shape.
 vim.api.nvim_create_autocmd("VimLeave", {
   callback = function() io.write("\027[1 q") end,
+})
+
+-- Sync lazy-lock.json back to chezmoi source so `chezmoi apply` never conflicts
+vim.api.nvim_create_autocmd("BufWritePost", {
+  pattern = "lazy-lock.json",
+  callback = function()
+    local target = vim.fn.expand("~/.config/nvim/lazy-lock.json")
+    vim.fn.jobstart({ "chezmoi", "re-add", target }, { detach = true })
+  end,
 })
 
 -- Subtle colour for trailing-whitespace dots (below the catppuccin surface colours)
