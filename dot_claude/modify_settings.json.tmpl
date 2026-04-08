@@ -4,7 +4,7 @@
 
 DESIRED=$(cat <<'MANAGED'
 {
-  "autoUpdatesChannel": "latest",
+  "autoUpdatesChannel": {{ if eq .machineType "work" }}"stable"{{ else }}"latest"{{ end }},
   "env": {
 {{- if .claudeApiBaseUrl }}
     "ANTHROPIC_BASE_URL": {{ .claudeApiBaseUrl | toJson }},
