@@ -11,6 +11,7 @@
 ## Code Style
 
 - Write self-explanatory code instead of adding comments. Only comment when the code alone cannot convey the reasoning or decision behind it.
+- Never use "Em Dashes". Just use regular hyphens `-` instead.
 
 ## Important Reminders
 
