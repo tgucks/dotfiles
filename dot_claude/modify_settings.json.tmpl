@@ -47,7 +47,8 @@ DESIRED=$(cat <<'MANAGED'
       "Bash(git ls-tree:*)",
       "Bash(git status:*)",
       "Bash(ls:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(wc:*)"
 {{- if eq .machineType "work" }},
       "mcp__atlas__getJiraIssue",
       "mcp__atlas__getConfluencePage",
