@@ -224,7 +224,7 @@ require("lazy").setup({
             },
             'diagnostics',
           },
-          lualine_c = {'filename'},
+          lualine_c = {{'filename', path = 1}},
           lualine_x = {'encoding', 'fileformat', 'filetype'},
           lualine_y = {'progress'},
           lualine_z = {'location'}
@@ -596,34 +596,28 @@ require("lazy").setup({
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     config = function()
-      local ok, configs = pcall(require, "nvim-treesitter.configs")
-      if not ok then return end
-      configs.setup({
-        ensure_installed = {
-          "bash",
-          "c",
-          "css",
-          "dockerfile",
-          "go",
-          "html",
-          "javascript",
-          "json",
-          "lua",
-          "make",
-          "markdown",
-          "markdown_inline",
-          "python",
-          "regex",
-          "rust",
-          "toml",
-          "tsx",
-          "typescript",
-          "vim",
-          "vimdoc",
-          "yaml",
-        },
-        highlight = { enable = true },
-        indent = { enable = true },
+      local ts = require("nvim-treesitter")
+      local parsers = {
+        "bash", "c", "css", "dockerfile", "go", "html", "javascript",
+        "json", "lua", "make", "markdown", "markdown_inline", "python",
+        "regex", "rust", "toml", "tsx", "typescript", "vim", "vimdoc", "yaml",
+      }
+      local installed = ts.get_installed()
+      local to_install = vim.tbl_filter(function(p)
+        return not vim.list_contains(installed, p)
+      end, parsers)
+      if #to_install > 0 then
+        ts.install(to_install)
+      end
+
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(args)
+          local lang = vim.treesitter.language.get_lang(args.match) or args.match
+          if pcall(vim.treesitter.language.inspect, lang) then
+            vim.treesitter.start(args.buf, lang)
+            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
       })
     end,
   },
