@@ -6,4 +6,6 @@ if command -v nvim &>/dev/null; then
     echo "Syncing Neovim plugins..."
     nvim --headless "+Lazy! sync" +qa 2>&1 || true
     nvim --headless "+TSUpdate" +qa 2>&1 || true
+    echo "Re-adding lazy-lock.json to chezmoi source..."
+    chezmoi re-add ~/.config/nvim/lazy-lock.json 2>&1 || true
 fi
