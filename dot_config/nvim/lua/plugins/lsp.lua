@@ -11,7 +11,10 @@ return {
     "j-hui/fidget.nvim",
     opts = {
       notification = {
-        window = { winblend = 0 },
+        window = {
+          winblend = 0,
+          avoid = { "NvimTree" },
+        },
       },
     },
   },
@@ -20,7 +23,7 @@ return {
     dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig", "hrsh7th/cmp-nvim-lsp", "j-hui/fidget.nvim" },
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = { "gopls", "basedpyright", "ruff", "ts_ls", "eslint" },
+        ensure_installed = { "gopls", "basedpyright", "ruff", "ts_ls", "eslint", "bashls" },
         automatic_installation = true,
       })
 

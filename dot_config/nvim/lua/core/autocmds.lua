@@ -7,6 +7,13 @@ vim.api.nvim_create_autocmd({ "BufLeave", "WinLeave" }, {
   callback = function() vim.opt_local.relativenumber = false end,
 })
 
+-- Go filetypes that nvim doesn't detect natively (gopls needs these)
+vim.filetype.add({
+  filename = { ["go.work"] = "gowork" },
+  extension = { gotmpl = "gotmpl" },
+  pattern = { [".*%.go%.tmpl"] = "gotmpl" },
+})
+
 -- Python convention is 4 spaces (matches ruff's formatter default)
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "python",
