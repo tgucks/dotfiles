@@ -50,12 +50,12 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 | `run_once_before_01-install-packages.sh.tmpl` | Once (Homebrew/apt packages) |
 | `run_once_before_02-install-oh-my-zsh.sh` | Once (Oh My Zsh) |
 | `run_once_before_03-set-default-shell.sh` | Once (chsh to zsh) |
-| `run_onchange_after_nvim-plugins.sh.tmpl` | When `init.lua` changes |
+| `run_onchange_after_nvim-plugins.sh.tmpl` | When any nvim `*.lua` file changes |
 | `run_onchange_after_tpm-plugins.sh.tmpl` | When `tmux.conf` changes |
 
 ### Neovim plugins
 
-Managed by [lazy.nvim](https://github.com/folke/lazy.nvim), bootstrapped automatically on first launch. `lazy-lock.json` is committed to pin plugin versions. After adding a plugin, run `:Lazy sync` inside nvim to update the lockfile.
+Managed by [lazy.nvim](https://github.com/folke/lazy.nvim), bootstrapped automatically on first launch. Config is modular: `lua/core/` holds options, keymaps, and autocmds; `lua/plugins/` has one file per plugin (lazy.nvim auto-discovers them via `import`). `lazy-lock.json` is committed to pin plugin versions. After adding a plugin, create a new file in `lua/plugins/` and run `:Lazy sync` inside nvim to update the lockfile.
 
 ### Indentation
 

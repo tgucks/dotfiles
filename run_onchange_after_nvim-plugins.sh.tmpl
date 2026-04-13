@@ -1,6 +1,6 @@
 #!/bin/bash
-# Runs when init.lua changes
-# init.lua hash: {{ include "dot_config/nvim/init.lua" | sha256sum }}
+# Runs when any nvim Lua config file changes
+# nvim config hash: {{ output "sh" "-c" (printf "find '%s/dot_config/nvim' -name '*.lua' -type f | sort | xargs cat | shasum -a 256" .chezmoi.sourceDir) | trim }}
 
 if command -v nvim &>/dev/null; then
     echo "Syncing Neovim plugins..."
