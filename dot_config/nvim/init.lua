@@ -648,8 +648,10 @@ require("lazy").setup({
       require("dap-go").setup()
       dapui.setup()
 
-      -- Auto open the UI when a debug session starts (but don't auto-close, so crash output stays visible)
+      -- Auto open/close the UI with debug sessions
       dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
+      dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
+      dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
 
       -- Breakpoint appearance
       vim.fn.sign_define("DapBreakpoint",          { text = "●", texthl = "DiagnosticError" })
