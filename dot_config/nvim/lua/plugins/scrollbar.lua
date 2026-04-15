@@ -17,5 +17,19 @@ return {
       excluded_filetypes = { "NvimTree", "neo-tree", "lazy", "mason" },
     })
     require("scrollbar.handlers.gitsigns").setup()
+
+    -- Only show scrollbar in the active window
+    local group = vim.api.nvim_create_augroup("ScrollbarActiveOnly", { clear = true })
+    vim.api.nvim_create_autocmd("WinLeave", {
+      group = group,
+      callback = function()
+        local buf = vim.api.nvim_get_current_buf()
+        for name, ns_id in pairs(vim.api.nvim_get_namespaces()) do
+          if name:match("^Scrollbar") then
+            vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
+          end
+        end
+      end,
+    })
   end,
 }
