@@ -1,5 +1,9 @@
 [alias]
   co = checkout
+  lg = log --graph --date=human --pretty=format:'%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset'
+
+[log]
+  date = format-local:%Y-%m-%d %H:%M:%S %Z (UTC%z)
 
 [core]
   pager = diff-so-fancy | less --tabs=4 -RF
