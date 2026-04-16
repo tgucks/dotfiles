@@ -59,6 +59,35 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
+-- Display-line navigation for prose filetypes and scratch buffers.
+-- Plain j/k move by visual line; counted motions (e.g. 5j) still use buffer lines
+-- so relative line numbers stay accurate.
+local prose_nav = vim.api.nvim_create_augroup("ProseNav", { clear = true })
+local function set_display_line_nav()
+  local opts = { buffer = 0, expr = true }
+  vim.keymap.set({ 'n', 'x' }, 'j', function()
+    return vim.v.count == 0 and 'gj' or 'j'
+  end, vim.tbl_extend('force', opts, { desc = "Down (display line)" }))
+  vim.keymap.set({ 'n', 'x' }, 'k', function()
+    return vim.v.count == 0 and 'gk' or 'k'
+  end, vim.tbl_extend('force', opts, { desc = "Up (display line)" }))
+  vim.keymap.set({ 'n', 'x' }, '0', 'g0', { buffer = 0, desc = "Start of display line" })
+  vim.keymap.set({ 'n', 'x' }, '$', 'g$', { buffer = 0, desc = "End of display line" })
+end
+vim.api.nvim_create_autocmd("FileType", {
+  group = prose_nav,
+  pattern = { "markdown", "text", "gitcommit" },
+  callback = set_display_line_nav,
+})
+vim.api.nvim_create_autocmd("BufEnter", {
+  group = prose_nav,
+  callback = function()
+    if vim.bo.buftype == "nofile" and vim.bo.filetype == "" then
+      set_display_line_nav()
+    end
+  end,
+})
+
 -- Auto-save: silently write whenever the buffer is modified.
 -- Uses `noautocmd` so BufWritePre/BufWritePost hooks (e.g. Go formatter) do NOT fire.
 -- The formatter still runs on explicit :w as normal.
