@@ -22,6 +22,7 @@ vim.opt.smartcase = true
 vim.opt.clipboard = "unnamedplus"
 vim.opt.splitbelow = true
 vim.opt.splitright = true
+vim.opt.wrap = false
 
 -- Default indentation: 2 spaces
 vim.opt.expandtab = true
