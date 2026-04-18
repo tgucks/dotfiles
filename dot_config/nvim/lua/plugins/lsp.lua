@@ -124,11 +124,21 @@ return {
         end,
       })
 
-      -- Auto-fix ESLint violations on save for JS/TS/React files
+      -- Auto-fix ESLint violations on save for JS/TS/React files.
+      -- LspEslintFixAll is a buffer-local command registered by the eslint LSP
+      -- on attach, so it only exists once the client is attached to this
+      -- buffer. Three states to distinguish:
+      --   1. Attached here           -> run the fix
+      --   2. Running, not yet here   -> warn (avoids silent skip on races)
+      --   3. Not running anywhere    -> silent skip (project has no eslint)
       vim.api.nvim_create_autocmd("BufWritePre", {
         pattern = { "*.js", "*.jsx", "*.ts", "*.tsx", "*.mjs", "*.cjs" },
-        callback = function()
-          vim.cmd("EslintFixAll")
+        callback = function(args)
+          if #vim.lsp.get_clients({ bufnr = args.buf, name = "eslint" }) > 0 then
+            vim.cmd("LspEslintFixAll")
+          elseif #vim.lsp.get_clients({ name = "eslint" }) > 0 then
+            vim.notify("eslint LSP not attached to this buffer yet; skipping fix", vim.log.levels.WARN)
+          end
         end,
       })
 
