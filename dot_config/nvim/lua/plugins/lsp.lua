@@ -63,7 +63,6 @@ return {
           map("gD",         vim.lsp.buf.declaration,    "Go to declaration")
           map("gr",         vim.lsp.buf.references,     "References")
           map("gi",         vim.lsp.buf.implementation, "Go to implementation")
-          map("<leader>rn", vim.lsp.buf.rename,         "Rename symbol")
           map("<leader>ca", vim.lsp.buf.code_action,    "Code action")
           map("[d",         vim.diagnostic.goto_prev,   "Prev diagnostic")
           map("]d",         vim.diagnostic.goto_next,   "Next diagnostic")
