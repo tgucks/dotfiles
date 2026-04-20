@@ -91,6 +91,9 @@ return {
             buffer = buf,
             callback = function()
               if vim.b[buf].lsp_float_state ~= nil then return end
+              local col = vim.fn.col(".")
+              local char = vim.fn.getline("."):sub(col, col)
+              if not char:match("%S") then return end
               local diags = vim.diagnostic.get(buf, { lnum = vim.fn.line(".") - 1 })
               if #diags > 0 then
                 show_diagnostic(buf)
