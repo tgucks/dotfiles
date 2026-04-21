@@ -3,6 +3,7 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+    "nvim-telescope/telescope-live-grep-args.nvim",
   },
   config = function()
     require("telescope").setup({
@@ -25,13 +26,13 @@ return {
       },
     })
     require("telescope").load_extension("fzf")
+    require("telescope").load_extension("live_grep_args")
     local builtin = require("telescope.builtin")
-    vim.keymap.set("n", "<leader>f",  builtin.find_files,  { desc = "Find files" })
-    vim.keymap.set("n", "<leader>r", builtin.live_grep,   { desc = "Live grep" })
-    vim.keymap.set("v", "<leader>r", function()
-      vim.cmd('noau normal! "vy"')
-      local text = vim.fn.getreg("v")
-      builtin.live_grep({ default_text = text })
-    end, { desc = "Live grep visual selection" })
+    local lga = require("telescope").extensions.live_grep_args
+    local lga_shortcuts = require("telescope-live-grep-args.shortcuts")
+    vim.keymap.set("n", "<leader>f", builtin.find_files, { desc = "Find files" })
+    vim.keymap.set("n", "<leader>r", lga.live_grep_args, { desc = "Live grep (with args)" })
+    vim.keymap.set("n", "<leader>R", lga_shortcuts.grep_word_under_cursor, { desc = "Grep word under cursor" })
+    vim.keymap.set({ "v", "x" }, "<leader>R", lga_shortcuts.grep_visual_selection, { desc = "Grep visual selection" })
   end,
 }
