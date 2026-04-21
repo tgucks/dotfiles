@@ -7,6 +7,7 @@ return {
     spec = {
       { "<leader>d", group = "debug" },
       { "<leader>g", group = "git" },
+      { "<leader>t", group = "test" },
     },
   },
   keys = {
