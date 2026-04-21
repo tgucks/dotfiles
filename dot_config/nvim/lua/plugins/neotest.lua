@@ -17,12 +17,18 @@ return {
   keys = {
     {
       "<leader>tf",
-      function() require("neotest").run.run(vim.fn.expand("%")) end,
+      function()
+        vim.notify("Running tests in file...", vim.log.levels.INFO, { title = "neotest" })
+        require("neotest").run.run(vim.fn.expand("%"))
+      end,
       desc = "Run tests in current file",
     },
     {
       "<leader>ts",
-      function() require("neotest").run.run(vim.fn.getcwd()) end,
+      function()
+        vim.notify("Running whole test suite...", vim.log.levels.INFO, { title = "neotest" })
+        require("neotest").run.run(vim.fn.getcwd())
+      end,
       desc = "Run whole test suite",
     },
     {
@@ -33,13 +39,19 @@ return {
           default = vim.fn.getcwd() .. "/",
           completion = "file",
         })
-        if path ~= "" then require("neotest").run.run(path) end
+        if path ~= "" then
+          vim.notify("Running tests in " .. vim.fn.fnamemodify(path, ":~:."), vim.log.levels.INFO, { title = "neotest" })
+          require("neotest").run.run(path)
+        end
       end,
       desc = "Run tests in path",
     },
     {
       "<leader>tn",
-      function() require("neotest").run.run() end,
+      function()
+        vim.notify("Running nearest test...", vim.log.levels.INFO, { title = "neotest" })
+        require("neotest").run.run()
+      end,
       desc = "Run nearest test",
     },
   },
@@ -49,6 +61,23 @@ return {
         require("neotest-golang")({
           runner = "gotestsum",
         }),
+      },
+      floating = {
+        border = "rounded",
+        options = { winblend = 0 },
+      },
+      status = {
+        enabled = true,
+        signs = true,
+        virtual_text = true,
+      },
+      output = {
+        enabled = true,
+        open_on_run = "short",
+      },
+      quickfix = {
+        enabled = true,
+        open = false,
       },
     })
   end,
