@@ -29,6 +29,7 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 | `dot_zsh_aliases.tmpl` | `~/.zsh_aliases` |
 | `dot_tmux.conf` | `~/.tmux.conf` |
 | `dot_gitconfig.tmpl` | `~/.gitconfig` |
+| `dot_psqlrc` | `~/.psqlrc` |
 | `dot_config/nvim/` | `~/.config/nvim/` |
 | `dot_config/ghostty/config` | `~/.config/ghostty/config` |
 | `dot_config/bat/config` | `~/.config/bat/config` |

@@ -9,6 +9,9 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 {{ else -}}
 eval "$(/usr/local/bin/brew shellenv)"
 {{ end -}}
+
+# libpq (psql, pg_dump, etc.) is keg-only; expose its bin
+export PATH="$(brew --prefix libpq)/bin:$PATH"
 {{ end -}}
 
 # --- Locale ---
