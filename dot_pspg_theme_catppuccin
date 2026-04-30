@@ -1,0 +1,49 @@
+template = 0
+
+background = #cdd6f4, #1e1e2e
+
+data   = #cdd6f4, #1e1e2e
+border = #45475a, #1e1e2e
+label  = #89b4fa, #181825, bold
+
+data*   = #cdd6f4, #242438
+border* = #45475a, #242438
+label*  = #89b4fa, #181825, bold
+
+row_number        = #6c7086, #181825
+cursor_row_number = #89b4fa, #45475a, bold
+
+footer        = #7f849c, #1e1e2e
+cursor_footer = #cdd6f4, #45475a
+
+cursor_data   = #cdd6f4, #45475a
+cursor_border = #7f849c, #45475a
+cursor_label  = #89b4fa, #45475a, bold
+
+cross_cursor        = #cdd6f4, #585b70, bold
+cross_cursor_border = #7f849c, #585b70
+
+matched_pattern                        = #1e1e2e, #a6e3a1, bold
+matched_line                           = #cdd6f4, #313244
+matched_line_border                    = #585b70, #313244
+matched_pattern_cursor                 = #1e1e2e, #a6e3a1, bold
+matched_line_vertical_cursor           = #cdd6f4, #45475a
+matched_line_vertical_cursor_border    = #7f849c, #45475a
+
+status_bar  = #cdd6f4, #313244
+title       = #89b4fa, #313244, bold
+prompt_bar  = #cdd6f4, #313244
+info_bar    = #f9e2af, #313244
+input_bar   = #cdd6f4, #45475a
+error_bar   = #f38ba8, #313244
+
+scrollbar_arrows        = #585b70, #1e1e2e
+scrollbar_background    = #181825, #181825
+scrollbar_slider        = #45475a, #313244
+scrollbar_active_slider = #89b4fa, #313244
+
+bookmark        = #fab387, #313244
+bookmark_border = #fab387, #313244
+cursor_bookmark = #1e1e2e, #fab387, bold
+
+selected_area = #1e1e2e, #cba6f7

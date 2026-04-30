@@ -1,0 +1,5 @@
+highlight_odd_rec = true
+show_rownum = true
+vertical_cursor = true
+ignore_lower_case = true
+bold_cursor = false

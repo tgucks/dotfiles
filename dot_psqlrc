@@ -1,13 +1,9 @@
 \set QUIET 1
 
-\setenv PAGER 'pspg -X -b'
+\setenv PAGER 'pspg -X --direct-color --custom-style=catppuccin'
 \pset pager always
-\pset null '∅'
 \pset linestyle unicode
 \pset border 2
-
-\set PROMPT1 '%[%033[1;32m%]%n@%/%[%033[0m%]%R%# '
-\set PROMPT2 '  '
 
 \set HISTFILE ~/.psql_history- :DBNAME
 \set HISTCONTROL ignoredups
