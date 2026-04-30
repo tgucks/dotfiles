@@ -1,0 +1,95 @@
+#compdef overmind
+
+_overmind_processes() {
+  local procfile="${OVERMIND_PROCFILE:-Procfile}"
+  [[ -f "$procfile" ]] || return
+  local processes
+  processes=(${(f)"$(grep -E '^[A-Za-z0-9_-]+:' "$procfile" | cut -d: -f1)"})
+  compadd -a processes
+}
+
+_overmind_socket_args=(
+  '(-s --socket)'{-s,--socket}'[overmind socket path]:socket:_files'
+  '(-S --network)'{-S,--network}'[network type]:network:(tcp tcp4 tcp6 unix)'
+)
+
+_overmind() {
+  local state
+  _arguments \
+    '(-h --help)'{-h,--help}'[show help]' \
+    '(-v --version)'{-v,--version}'[print the version]' \
+    '1: :->command' \
+    '*:: :->args'
+
+  case $state in
+    command)
+      local commands=(
+        'start:run procfile'
+        's:run procfile'
+        'restart:restart specified processes'
+        'r:restart specified processes'
+        'stop:stop specified processes'
+        'interrupt:stop specified processes'
+        'i:stop specified processes'
+        'connect:connect to the tmux session of the specified process'
+        'c:connect to the tmux session of the specified process'
+        'quit:gracefully quit overmind'
+        'q:gracefully quit overmind'
+        'kill:kill all processes'
+        'k:kill all processes'
+        'run:run a command within the overmind environment'
+        'exec:run a command within the overmind environment'
+        'e:run a command within the overmind environment'
+        'echo:echo output from master overmind instance'
+        'status:print process statuses'
+        'ps:print process statuses'
+        'help:show help'
+        'h:show help'
+      )
+      _describe 'command' commands
+      ;;
+    args)
+      case $words[1] in
+        restart|r|stop|interrupt|i|connect|c)
+          _arguments \
+            $_overmind_socket_args \
+            '*:process:_overmind_processes'
+          ;;
+        start|s)
+          _arguments \
+            '(-w --title)'{-w,--title}'[application title]:title' \
+            '(-f --procfile)'{-f,--procfile}'[procfile path]:procfile:_files' \
+            '(-l --processes)'{-l,--processes}'[process names to launch (comma-separated)]:processes' \
+            '(-d --root)'{-d,--root}'[working directory]:directory:_files -/' \
+            '(-t --timeout)'{-t,--timeout}'[graceful shutdown timeout in seconds]:seconds' \
+            '(-p --port)'{-p,--port}'[base port]:port' \
+            '(-P --port-step)'{-P,--port-step}'[port step]:step' \
+            '(-N --no-port)'{-N,--no-port}'[do not set PORT variable]' \
+            '(-c --can-die)'{-c,--can-die}'[processes that can die without interrupting others]:processes' \
+            '--any-can-die[allow any process to die without stopping overmind]' \
+            '(-r --auto-restart)'{-r,--auto-restart}'[processes to auto-restart on death]:processes' \
+            '(-b --colors)'{-b,--colors}'[xterm color codes for process names]:colors' \
+            '(-T --show-timestamps)'{-T,--show-timestamps}'[add timestamps to output]' \
+            '(-m --formation)'{-m,--formation}'[process formation (process=num,...)]:formation' \
+            '--formation-port-step[port step for next process instance]:step' \
+            '(-i --stop-signals)'{-i,--stop-signals}'[stop signals (process=signal,...)]:signals' \
+            '(-D --daemonize)'{-D,--daemonize}'[launch as daemon]' \
+            '(-F --tmux-config)'{-F,--tmux-config}'[tmux config path]:file:_files' \
+            '(-x --ignored-processes)'{-x,--ignored-processes}'[process names to ignore (comma-separated)]:processes' \
+            '(-H --shell)'{-H,--shell}'[shell to run processes with]:shell' \
+            $_overmind_socket_args
+          ;;
+        run|exec|e)
+          _arguments \
+            $_overmind_socket_args \
+            '*:command:_command_names -e'
+          ;;
+        *)
+          _arguments $_overmind_socket_args
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_overmind "$@"
