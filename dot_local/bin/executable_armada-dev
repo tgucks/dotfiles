@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# armada-dev - orchestrate Armada local dev stack (deps + init + overmind).
+# Run from the armada repo root.
+
+set -euo pipefail
+
+PROFILE="no-auth"
+
+usage() {
+  cat <<EOF
+Usage: armada-dev <command> [--profile <name>]
+
+Run from the root of the armada repo (must contain _local/ and
+scripts/localdev-init.sh).
+
+Commands:
+  up        Start everything (deps + init + overmind, daemonized).
+              1. docker-compose -f _local/docker-compose-deps.yaml up -d [--profile auth]
+              2. scripts/localdev-init.sh
+              3. overmind start --root . -f _local/procfiles/<profile>.Procfile -D
+
+  down      Stop everything, preserving data.
+              1. overmind quit
+              2. docker-compose -f _local/docker-compose-deps.yaml stop
+
+  destroy   Tear everything down, wiping Postgres data.
+              1. overmind quit
+              2. docker-compose -f _local/docker-compose-deps.yaml down
+
+  deps      Just deps: docker-compose -f _local/docker-compose-deps.yaml up -d
+  init      Just init: scripts/localdev-init.sh
+
+Profiles: no-auth (default), auth, fake-executor
+  'auth' adds --profile auth to docker-compose (starts keycloak).
+
+After 'up', interact with overmind directly:
+  overmind ps              # status
+  overmind connect <svc>   # attach to a service pane
+  overmind restart <svc>   # rebuild + restart one service
+  overmind echo <svc>      # tail logs for one service
+
+Data note:
+  The deps compose file declares no Postgres volume, so 'down --volumes'
+  is redundant - 'destroy' uses plain 'docker-compose down' and that alone
+  wipes the DB (data lives in the container layer). 'down' uses 'stop' to
+  preserve data.
+EOF
+}
+
+require_cmd() {
+  command -v "$1" >/dev/null 2>&1 || {
+    echo "error: '$1' not found on PATH" >&2
+    [[ -n "${2:-}" ]] && echo "hint: $2" >&2
+    exit 1
+  }
+}
+
+check_repo_root() {
+  [[ -d _local && -f _local/docker-compose-deps.yaml && -f scripts/localdev-init.sh ]] || {
+    echo "error: must run from the armada repo root" >&2
+    echo "cwd: $(pwd)" >&2
+    exit 1
+  }
+}
+
+procfile_for() {
+  case "$PROFILE" in
+    no-auth|auth|fake-executor) echo "_local/procfiles/$PROFILE.Procfile" ;;
+    *) echo "error: unknown profile '$PROFILE' (expected: no-auth|auth|fake-executor)" >&2; exit 1 ;;
+  esac
+}
+
+run() {
+  echo "→ $*"
+  "$@"
+}
+
+stop_overmind() {
+  if [[ -S .overmind.sock ]]; then
+    run overmind quit
+  else
+    echo "→ overmind quit (nothing running)"
+  fi
+}
+
+cmd=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --profile) PROFILE="$2"; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *)
+      if [[ -z "$cmd" ]]; then cmd="$1"; shift
+      else echo "error: unexpected arg '$1'" >&2; exit 1
+      fi
+      ;;
+  esac
+done
+
+[[ -z "$cmd" ]] && { usage; exit 1; }
+
+check_repo_root
+require_cmd docker-compose "install Docker Desktop or docker-compose"
+
+compose_args=(-f _local/docker-compose-deps.yaml)
+[[ "$PROFILE" == "auth" ]] && compose_args+=(--profile auth)
+
+PROCFILE="$(procfile_for)"
+[[ -f "$PROCFILE" ]] || { echo "error: $PROCFILE not found" >&2; exit 1; }
+
+case "$cmd" in
+  up)
+    require_cmd overmind "brew install overmind"
+    run docker-compose "${compose_args[@]}" up -d
+    run scripts/localdev-init.sh
+    run overmind start --root . -f "$PROCFILE" -D
+    echo
+    echo "✓ up (profile: $PROFILE). Use 'overmind ps' / 'overmind connect <svc>'."
+    ;;
+  down)
+    stop_overmind
+    run docker-compose "${compose_args[@]}" stop
+    ;;
+  destroy)
+    stop_overmind
+    run docker-compose "${compose_args[@]}" down
+    ;;
+  deps)
+    run docker-compose "${compose_args[@]}" up -d
+    ;;
+  init)
+    run scripts/localdev-init.sh
+    ;;
+  *)
+    usage; exit 1 ;;
+esac
