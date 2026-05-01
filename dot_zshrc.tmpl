@@ -97,5 +97,10 @@ _cache_eval minikube-completion minikube completion zsh
 # --- ripgrep config ---
 export RIPGREP_CONFIG_PATH="$HOME/.config/.ripgreprc"
 
+# --- PostgreSQL / pspg ---
+export PSQLRC="$HOME/.config/psql/config"
+export PSPG_CONF="$HOME/.config/pspg/config"
+export PSPG="-X --direct-color --custom-style=catppuccin"
+
 # --- Local overrides ---
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

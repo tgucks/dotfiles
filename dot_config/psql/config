@@ -1,11 +1,11 @@
 \set QUIET 1
 
-\setenv PAGER 'pspg -X --direct-color --custom-style=catppuccin'
+\setenv PAGER pspg
 \pset pager always
 \pset linestyle unicode
 \pset border 2
 
-\set HISTFILE ~/.psql_history- :DBNAME
+\set HISTFILE ~/.config/psql/history- :DBNAME
 \set HISTCONTROL ignoredups
 \set COMP_KEYWORD_CASE upper
 
