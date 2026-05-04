@@ -1,5 +1,7 @@
--- Forward-delete in insert mode (fn+delete on macOS)
-vim.keymap.set('i', '<C-d>', '<Right><BS>', { desc = "Forward delete" })
+-- Forward-delete in insert mode (fn+delete on macOS).
+-- Use <Del> directly: <Right><BS> misbehaves with softtabstop, deleting a whole
+-- indent group instead of one character when whitespace is in front of the cursor.
+vim.keymap.set('i', '<C-d>', '<Del>', { desc = "Forward delete" })
 
 -- Exit insert mode without reaching for Esc
 vim.keymap.set('i', 'jj', '<Esc>', { desc = "Exit insert mode" })
