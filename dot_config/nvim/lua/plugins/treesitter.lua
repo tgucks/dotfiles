@@ -6,7 +6,7 @@ return {
     local parsers = {
       "bash", "c", "css", "dockerfile", "go", "html", "javascript",
       "json", "lua", "make", "markdown", "markdown_inline", "python",
-      "regex", "rust", "toml", "tsx", "typescript", "vim", "vimdoc", "yaml",
+      "regex", "rust", "sql", "toml", "tsx", "typescript", "vim", "vimdoc", "yaml",
     }
     local installed = ts.get_installed()
     local to_install = vim.tbl_filter(function(p)
