@@ -1,7 +1,8 @@
 \set QUIET 1
 
-\setenv PAGER pspg
-\pset pager always
+\setenv PSQL_PAGER pspg
+\setenv PAGER less
+\pset pager on
 \pset linestyle unicode
 \pset border 2
 
