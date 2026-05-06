@@ -17,15 +17,17 @@ scripts/localdev-init.sh).
 Commands:
   up        Start everything (deps + init + overmind). Streams logs by default.
               1. docker-compose -f _local/docker-compose-deps.yaml up -d [--profile auth]
-              2. scripts/localdev-init.sh
-              3. overmind start --title armada-dev --root . -f _local/procfiles/<profile>.Procfile [-D]
+              2. wait for Pulsar broker to pass its health check (polls :8090, up to 120s)
+              3. scripts/localdev-init.sh
+              4. overmind start --title armada-dev --root . -f _local/procfiles/<profile>.Procfile [-D]
 
   start     Start overmind only (skips deps + init - use after 'down' when deps are already running).
               overmind start --title armada-dev --root . -f _local/procfiles/<profile>.Procfile [-D]
 
-  down      Stop everything, preserving data.
+  down      Stop everything, preserving Postgres/Redis data.
               1. overmind quit
-              2. docker-compose -f _local/docker-compose-deps.yaml stop
+              2. docker-compose -f _local/docker-compose-deps.yaml stop --timeout 30
+              3. docker-compose rm -sf pulsar  (removed so next 'up' starts fresh - BookKeeper state is ephemeral)
 
   destroy   Tear everything down, wiping Postgres data.
               1. overmind quit
@@ -101,6 +103,24 @@ stop_overmind() {
   echo "→ overmind quit (nothing running)"
 }
 
+wait_for_pulsar() {
+  local deadline=$(( $(date +%s) + 180 ))
+  local -a spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+  local i=0
+  printf "→ waiting for Pulsar %s " "${spinner[$i]}"
+  while [[ "$(docker inspect --format='{{.State.Health.Status}}' pulsar 2>/dev/null)" != "healthy" ]]; do
+    if [[ $(date +%s) -ge $deadline ]]; then
+      printf "\r\033[K"
+      echo "error: Pulsar did not become healthy within 180s" >&2
+      exit 1
+    fi
+    i=$(( (i + 1) % ${#spinner[@]} ))
+    printf "\r→ waiting for Pulsar %s " "${spinner[$i]}"
+    sleep 0.1
+  done
+  printf "\r\033[K→ Pulsar ready\n"
+}
+
 preflight_no_stale_processes() {
   local pids
   pids=$(pgrep -f "dist/armada-" 2>/dev/null || true)
@@ -143,6 +163,7 @@ case "$cmd" in
     require_cmd overmind "brew install overmind"
     preflight_no_stale_processes
     run docker-compose "${compose_args[@]}" up -d
+    wait_for_pulsar
     run scripts/localdev-init.sh
     overmind_args=(start --title armada-dev --root . -f "$PROCFILE")
     [[ "$DETACH" -eq 1 ]] && overmind_args+=(-D)
@@ -159,7 +180,8 @@ case "$cmd" in
     ;;
   down)
     stop_overmind
-    run docker-compose "${compose_args[@]}" stop
+    run docker-compose "${compose_args[@]}" stop --timeout 30
+    run docker-compose "${compose_args[@]}" rm -sf pulsar
     ;;
   destroy)
     stop_overmind
