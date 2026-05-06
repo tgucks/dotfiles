@@ -5,19 +5,23 @@
 set -euo pipefail
 
 PROFILE="no-auth"
+DETACH=0
 
 usage() {
   cat <<EOF
-Usage: armada-dev <command> [--profile <name>]
+Usage: armada-dev <command> [--profile <name>] [--detach]
 
 Run from the root of the armada repo (must contain _local/ and
 scripts/localdev-init.sh).
 
 Commands:
-  up        Start everything (deps + init + overmind, daemonized).
+  up        Start everything (deps + init + overmind). Streams logs by default.
               1. docker-compose -f _local/docker-compose-deps.yaml up -d [--profile auth]
               2. scripts/localdev-init.sh
-              3. overmind start --title armada-dev --root . -f _local/procfiles/<profile>.Procfile -D
+              3. overmind start --title armada-dev --root . -f _local/procfiles/<profile>.Procfile [-D]
+
+  start     Start overmind only (skips deps + init - use after 'down' when deps are already running).
+              overmind start --title armada-dev --root . -f _local/procfiles/<profile>.Procfile [-D]
 
   down      Stop everything, preserving data.
               1. overmind quit
@@ -33,7 +37,11 @@ Commands:
 Profiles: no-auth (default), auth, fake-executor
   'auth' adds --profile auth to docker-compose (starts keycloak).
 
-After 'up', interact with overmind directly:
+Options:
+  --detach  Run overmind in the background (daemonized). Without this flag,
+            logs stream to the terminal - press Ctrl-C to quit.
+
+After '--detach', interact with overmind directly:
   overmind ps              # status
   overmind connect <svc>   # attach to a service pane
   overmind restart <svc>   # rebuild + restart one service
@@ -78,15 +86,38 @@ run() {
 stop_overmind() {
   if [[ -S .overmind.sock ]]; then
     run overmind quit
-  else
-    echo "→ overmind quit (nothing running)"
+    return
   fi
+  # Check sibling worktrees for orphaned sockets (happens when 'down' is run
+  # from a different worktree than the one that started overmind).
+  local orphan
+  for orphan in ../*/.overmind.sock; do
+    if [[ -S "$orphan" ]]; then
+      echo "→ no local socket; found orphaned overmind socket at $orphan"
+      OVERMIND_SOCKET="$orphan" run overmind quit
+      return
+    fi
+  done
+  echo "→ overmind quit (nothing running)"
+}
+
+preflight_no_stale_processes() {
+  local pids
+  pids=$(pgrep -f "dist/armada-" 2>/dev/null || true)
+  [[ -z "$pids" ]] && return
+  echo "error: armada services are already running (PIDs: $pids)" >&2
+  echo "hint: run 'armada-dev down' from the worktree that started them" >&2
+  for sock in ../*/.overmind.sock; do
+    [[ -S "$sock" ]] && echo "hint: found socket at $sock" >&2
+  done
+  exit 1
 }
 
 cmd=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile) PROFILE="$2"; shift 2 ;;
+    --detach) DETACH=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *)
       if [[ -z "$cmd" ]]; then cmd="$1"; shift
@@ -110,11 +141,21 @@ PROCFILE="$(procfile_for)"
 case "$cmd" in
   up)
     require_cmd overmind "brew install overmind"
+    preflight_no_stale_processes
     run docker-compose "${compose_args[@]}" up -d
     run scripts/localdev-init.sh
-    run overmind start --title armada-dev --root . -f "$PROCFILE" -D
-    echo
-    echo "✓ up (profile: $PROFILE). Use 'overmind ps' / 'overmind connect <svc>'."
+    overmind_args=(start --title armada-dev --root . -f "$PROCFILE")
+    [[ "$DETACH" -eq 1 ]] && overmind_args+=(-D)
+    run overmind "${overmind_args[@]}"
+    [[ "$DETACH" -eq 1 ]] && echo "✓ up (profile: $PROFILE). Use 'overmind ps' / 'overmind connect <svc>'."
+    ;;
+  start)
+    require_cmd overmind "brew install overmind"
+    preflight_no_stale_processes
+    overmind_args=(start --title armada-dev --root . -f "$PROCFILE")
+    [[ "$DETACH" -eq 1 ]] && overmind_args+=(-D)
+    run overmind "${overmind_args[@]}"
+    [[ "$DETACH" -eq 1 ]] && echo "✓ started (profile: $PROFILE). Use 'overmind ps' / 'overmind connect <svc>'."
     ;;
   down)
     stop_overmind
