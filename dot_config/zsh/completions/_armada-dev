@@ -1,0 +1,24 @@
+#compdef armada-dev
+
+_armada_dev() {
+  local state
+  _arguments -C \
+    '(-h --help)'{-h,--help}'[show help]' \
+    '--profile[docker-compose / procfile profile]:profile:(no-auth auth fake-executor)' \
+    '1: :->cmd'
+
+  case "$state" in
+    cmd)
+      local -a cmds=(
+        'up:start everything (deps + init + overmind daemonized)'
+        'down:stop everything, preserving data'
+        'destroy:tear everything down (wipes Postgres data)'
+        'deps:start docker-compose deps only'
+        'init:run scripts/localdev-init.sh only'
+      )
+      _describe -t commands 'armada-dev command' cmds
+      ;;
+  esac
+}
+
+_armada_dev "$@"

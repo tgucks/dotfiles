@@ -17,7 +17,7 @@ Commands:
   up        Start everything (deps + init + overmind, daemonized).
               1. docker-compose -f _local/docker-compose-deps.yaml up -d [--profile auth]
               2. scripts/localdev-init.sh
-              3. overmind start --root . -f _local/procfiles/<profile>.Procfile -D
+              3. overmind start --title armada-dev --root . -f _local/procfiles/<profile>.Procfile -D
 
   down      Stop everything, preserving data.
               1. overmind quit
@@ -112,7 +112,7 @@ case "$cmd" in
     require_cmd overmind "brew install overmind"
     run docker-compose "${compose_args[@]}" up -d
     run scripts/localdev-init.sh
-    run overmind start --root . -f "$PROCFILE" -D
+    run overmind start --title armada-dev --root . -f "$PROCFILE" -D
     echo
     echo "✓ up (profile: $PROFILE). Use 'overmind ps' / 'overmind connect <svc>'."
     ;;
