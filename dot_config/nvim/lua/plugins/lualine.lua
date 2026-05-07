@@ -26,6 +26,17 @@ return {
         lualine_y = {'progress'},
         lualine_z = {'location'}
       },
+      -- Inactive windows: show the same relative path as active windows
+      -- (default only shows the bare filename, which makes it hard to tell
+      -- which file lives in which split).
+      inactive_sections = {
+        lualine_a = {},
+        lualine_b = {},
+        lualine_c = {{'filename', path = 1}},
+        lualine_x = {'location'},
+        lualine_y = {},
+        lualine_z = {},
+      },
     })
   end,
 }
