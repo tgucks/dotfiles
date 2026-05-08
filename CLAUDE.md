@@ -36,6 +36,10 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 | `dot_config/dot_ripgreprc` | `~/.config/.ripgreprc` |
 | `dot_claude/` | `~/.claude/` |
 
+### Terminal
+
+- The repo tracks a ghostty config at `dot_config/ghostty/config`, but the user's actual terminal is iTerm2. Treat the ghostty config as unused/legacy — do not assume terminal-related changes should go there.
+
 ### Claude settings
 
 `dot_claude/modify_settings.json.tmpl` is a modify script that deep-merges managed settings into `~/.claude/settings.json`. Keys that Claude writes at runtime (e.g., `model`) are preserved. Machine-specific values (API URLs) come from `chezmoi.toml` data, never committed.
