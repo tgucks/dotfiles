@@ -29,6 +29,17 @@ vim.keymap.set("n", "<leader>J", function()
   vim.api.nvim_buf_set_lines(0, lnum - 1, lnum, false, vim.split(result, "\n"))
 end, { desc = "Expand inline to multiline" })
 
+-- Copy current file's path (relative to cwd) to the system clipboard
+vim.keymap.set("n", "<leader>cp", function()
+  local path = vim.fn.expand("%:.")
+  if path == "" then
+    vim.notify("No file in buffer", vim.log.levels.WARN)
+    return
+  end
+  vim.fn.setreg("+", path)
+  vim.notify("Copied: " .. path)
+end, { desc = "Copy relative path of current file" })
+
 -- Close all floating windows and suppress auto-reopen until cursor moves
 vim.keymap.set("n", "<Esc>", function()
   vim.b[vim.api.nvim_get_current_buf()].lsp_float_state = "dismissed"
