@@ -38,9 +38,16 @@ DESIRED=$(cat <<'MANAGED'
     "command": "zsh ~/.claude/statusline-command.sh"
   },
   "permissions": {
+{{- if eq .machineType "work" }}
+    "deny": [
+      "WebSearch"
+    ],
+{{- end }}
     "allow": [
       "WebFetch",
+{{- if ne .machineType "work" }}
       "WebSearch",
+{{- end }}
       "Read",
       "Glob",
       "Grep",
