@@ -1,5 +1,21 @@
 # --- Aliases ---
 
+# nvim wrapper: opt-in session restore via --resume / --continue.
+# Plain `vim` / `v` opens a blank session; auto-session still saves on exit.
+nvim() {
+  local arg restore=0 args=()
+  for arg in "$@"; do
+    case "$arg" in
+      --resume|--continue) restore=1 ;;
+      *) args+=("$arg") ;;
+    esac
+  done
+  if (( restore )); then
+    command nvim "${args[@]}" "+AutoSession restore"
+  else
+    command nvim "${args[@]}"
+  fi
+}
 alias vim=nvim
 alias vi=nvim
 alias v=nvim
