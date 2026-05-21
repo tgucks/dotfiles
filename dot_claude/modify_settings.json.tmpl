@@ -37,6 +37,10 @@ DESIRED=$(cat <<'MANAGED'
     "type": "command",
     "command": "zsh ~/.claude/statusline-command.sh"
   },
+  "fileSuggestion": {
+    "type": "command",
+    "command": "bash ~/.claude/scripts/file-suggestion.sh"
+  },
   "permissions": {
 {{- if eq .machineType "work" }}
     "deny": [
