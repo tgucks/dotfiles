@@ -8,6 +8,7 @@ This repo is a dotfiles/config management setup. Primary languages: Shell/Zsh, L
 ## Neovim
 
 - For Neovim configuration changes: always check the exact plugin API and option names before editing. Prefer editorconfig-aware solutions over hard-coded globals for formatting.
+- `auto-session` writes one session file per cwd. Tmux-resurrect must NOT inject `:AutoSession restore` / `+SessionRestore` / `--resume` into restored nvim panes - the user often runs multiple nvim instances in one cwd, and a shared restore causes `E303: Unable to open swap file` collisions and disables auto-save. Resurrect should re-run each pane's saved command verbatim. Manual `vim --resume` (one nvim at a time) is fine.
 
 ## Third-party plugins & libraries
 
