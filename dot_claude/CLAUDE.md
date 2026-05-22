@@ -3,6 +3,7 @@
 ## Platform
 
 - When working on macOS, always account for BSD tool differences (e.g., `find`, `sed -i`) — do not assume GNU/Linux behavior. Test commands mentally against macOS before suggesting them.
+- Default shell is zsh: prefer zsh-compatible syntax for snippets, aliases, and one-liners. Mind differences from bash in arrays, parameter expansion, and `read` flags.
 
 ## Tools section
 
