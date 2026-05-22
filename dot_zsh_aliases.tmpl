@@ -19,6 +19,52 @@ nvim() {
 alias vim=nvim
 alias vi=nvim
 alias v=nvim
+
+# `nvim --embed` defers loading init.lua until an RPC client attaches a UI.
+# When a spawner dies before its embed child (kill -9'd terminal, tmux pane
+# torn down forcibly), the kernel reparents nvim to PID 1 and it sits there
+# forever leaking memory waiting for an RPC peer that will never connect.
+# Production has shown ~1 GB after ~40 hours per orphan. We sweep these in
+# precmd so they never accumulate while a shell is open.
+_nvim_etime_to_seconds() {
+  emulate -L zsh
+  local s="$1" days=0 hours=0 minutes=0 seconds=0
+  if [[ "$s" == *-* ]]; then
+    days="${s%%-*}"
+    s="${s#*-}"
+  fi
+  local -a parts=("${(s/:/)s}")
+  case "${#parts}" in
+    3) hours="${parts[1]}"; minutes="${parts[2]}"; seconds="${parts[3]}" ;;
+    2) minutes="${parts[1]}"; seconds="${parts[2]}" ;;
+    1) seconds="${parts[1]}" ;;
+  esac
+  # 10# prefix forces base-10 to avoid octal interpretation of "08", "09".
+  print $(( 10#$days * 86400 + 10#$hours * 3600 + 10#$minutes * 60 + 10#$seconds ))
+}
+
+_nvim_should_reap() {
+  local ppid="$1" etime_secs="$2" grace="$3"
+  [[ "$ppid" == "1" ]] || return 1
+  (( etime_secs >= grace )) || return 1
+  return 0
+}
+
+_nvim_reap_orphans() {
+  emulate -L zsh
+  local grace="${NVIM_REAPER_GRACE:-60}"
+  local pid ppid etime secs
+  for pid in ${(f)"$(pgrep -f 'nvim --embed' 2>/dev/null)"}; do
+    [[ -z "$pid" ]] && continue
+    ppid="$(ps -o ppid= -p $pid 2>/dev/null | tr -d ' ')"
+    etime="$(ps -o etime= -p $pid 2>/dev/null | tr -d ' ')"
+    [[ -z "$ppid" || -z "$etime" ]] && continue
+    secs=$(_nvim_etime_to_seconds "$etime")
+    _nvim_should_reap "$ppid" "$secs" "$grace" && kill -9 "$pid" 2>/dev/null
+  done
+}
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _nvim_reap_orphans
 alias b=brew
 alias ov=overmind
 
@@ -75,6 +121,51 @@ clear-claude-plugin-cache() {
     echo "Failed to clear $target" >&2
     return 1
   fi
+}
+
+# --- OrbStack ---
+orb-cleanup() {
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "docker not found. Is OrbStack installed?" >&2
+    return 1
+  fi
+  if ! docker info >/dev/null 2>&1; then
+    echo "OrbStack not running?" >&2
+    return 1
+  fi
+
+  echo "=== Current usage ==="
+  docker system df
+  echo
+
+  echo "=== Stopped containers ==="
+  docker ps -a --filter status=exited --filter status=created
+  echo
+
+  echo "=== Dangling images ==="
+  docker images --filter dangling=true
+  echo "(prune -af also removes unreferenced tagged images, not listed above)"
+  echo
+
+  echo "=== Unused volumes ==="
+  docker volume ls --filter dangling=true
+  echo
+
+  read -q "?Proceed with aggressive cleanup (containers, all unused images, volumes, build cache)? [y/N] " \
+    || { echo; echo "Cancelled."; return 0; }
+  echo
+
+  echo "Pruning stopped containers..."
+  docker container prune -f
+  echo "Pruning unused images..."
+  docker image prune -af
+  echo "Pruning unused volumes..."
+  docker volume prune -af
+  echo "Pruning build cache..."
+  docker builder prune -af
+  echo
+  echo "=== After cleanup ==="
+  docker system df
 }
 
 # --- chezmoi ---
