@@ -63,8 +63,11 @@ _nvim_reap_orphans() {
     _nvim_should_reap "$ppid" "$secs" "$grace" && kill -9 "$pid" 2>/dev/null
   done
 }
+# `&!` backgrounds and disowns; precmd returns immediately so the prompt is
+# never blocked by pgrep/ps fork-exec cost (~20ms otherwise).
+_nvim_reap_orphans_async() { _nvim_reap_orphans &! }
 autoload -Uz add-zsh-hook
-add-zsh-hook precmd _nvim_reap_orphans
+add-zsh-hook precmd _nvim_reap_orphans_async
 alias b=brew
 alias ov=overmind
 

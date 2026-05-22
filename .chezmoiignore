@@ -5,6 +5,7 @@ CLAUDE.md
 docs/**
 terminal/**
 git/**
+tests/**
 
 {{ if .isServer }}
 # Skip GUI/desktop configs on servers
