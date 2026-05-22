@@ -17,6 +17,7 @@ _armada_dev() {
         'destroy:tear everything down (wipes Postgres data)'
         'deps:start docker-compose deps only'
         'init:run scripts/localdev-init.sh only'
+        'ps:show all running armada-related resources'
       )
       _describe -t commands 'armada-dev command' cmds
       ;;

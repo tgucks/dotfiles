@@ -36,6 +36,10 @@ Commands:
   deps      Just deps: docker-compose -f _local/docker-compose-deps.yaml up -d
   init      Just init: scripts/localdev-init.sh
 
+  ps        Show every armada-related running thing across docker, overmind,
+            local processes, and kind/k8s. Each section degrades gracefully
+            if its tool isn't installed.
+
 Profiles: no-auth (default), auth, fake-executor
   'auth' adds --profile auth to docker-compose (starts keycloak).
 
@@ -133,6 +137,97 @@ preflight_no_stale_processes() {
   exit 1
 }
 
+ps_header() {
+  local title="$1"
+  local total=60
+  local pad=$(( total - 5 - ${#title} ))
+  (( pad < 3 )) && pad=3
+  local fill
+  fill=$(printf '─%.0s' $(seq 1 $pad))
+  printf '\n─── %s %s\n' "$title" "$fill"
+}
+
+ps_docker() {
+  ps_header "Docker (compose deps)"
+  if ! command -v docker-compose >/dev/null 2>&1; then
+    echo "(skipped: docker-compose not installed)"
+    return
+  fi
+  local ids
+  ids=$(docker-compose -f _local/docker-compose-deps.yaml ps -q 2>/dev/null || true)
+  if [[ -z "$ids" ]]; then
+    echo "(none)"
+    return
+  fi
+  docker-compose -f _local/docker-compose-deps.yaml ps 2>/dev/null \
+    || echo "(error querying docker-compose)"
+}
+
+ps_overmind() {
+  ps_header "Overmind"
+  if ! command -v overmind >/dev/null 2>&1; then
+    echo "(skipped: overmind not installed)"
+    return
+  fi
+  local found=0
+  if [[ -S .overmind.sock ]]; then
+    overmind ps 2>/dev/null && found=1
+  fi
+  for orphan in ../*/.overmind.sock; do
+    [[ -S "$orphan" ]] || continue
+    echo "(orphaned socket: $orphan)"
+    OVERMIND_SOCKET="$orphan" overmind ps 2>/dev/null || true
+    found=1
+  done
+  [[ $found -eq 0 ]] && echo "(none)"
+}
+
+ps_processes() {
+  ps_header "Processes (dist/armada-*)"
+  local pids
+  pids=$(pgrep -f "dist/armada-" 2>/dev/null || true)
+  if [[ -z "$pids" ]]; then
+    echo "(none)"
+    return
+  fi
+  # macOS pgrep -a means "ancestors", not "show args" - use ps for the listing.
+  ps -o pid,command -p $pids
+}
+
+ps_kind() {
+  ps_header "Kubernetes (kind clusters)"
+  if ! command -v kind >/dev/null 2>&1; then
+    echo "(skipped: kind not installed)"
+    return
+  fi
+  local clusters
+  clusters=$(kind get clusters 2>/dev/null || true)
+  if [[ -z "$clusters" || "$clusters" == "No kind clusters found." ]]; then
+    echo "(none)"
+    return
+  fi
+  if ! command -v kubectl >/dev/null 2>&1; then
+    echo "$clusters"
+    echo "(kubectl not installed - skipping nodes/pods)"
+    return
+  fi
+  while IFS= read -r cluster; do
+    [[ -z "$cluster" ]] && continue
+    printf '\n  ▸ %s\n' "$cluster"
+    local ctx="kind-$cluster"
+    local nodes
+    if ! nodes=$(kubectl --context "$ctx" get nodes 2>/dev/null); then
+      echo "    (cluster unreachable)"
+      continue
+    fi
+    echo "    nodes:"
+    echo "$nodes"
+    echo "    pods:"
+    kubectl --context "$ctx" get pods --all-namespaces 2>/dev/null \
+      || echo "    (error fetching pods)"
+  done <<< "$clusters"
+}
+
 cmd=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -154,6 +249,16 @@ require_cmd docker-compose "install Docker Desktop or docker-compose"
 
 compose_args=(-f _local/docker-compose-deps.yaml)
 [[ "$PROFILE" == "auth" ]] && compose_args+=(--profile auth)
+
+# ps gracefully handles missing tools per-section, so it shouldn't be gated
+# on the procfile check below (procfiles are only used by up/start).
+if [[ "$cmd" == "ps" ]]; then
+  ps_docker
+  ps_overmind
+  ps_processes
+  ps_kind
+  exit 0
+fi
 
 PROCFILE="$(procfile_for)"
 [[ -f "$PROCFILE" ]] || { echo "error: $PROCFILE not found" >&2; exit 1; }
