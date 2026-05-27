@@ -5,6 +5,7 @@
 DESIRED=$(cat <<'MANAGED'
 {
   "autoUpdatesChannel": "latest",
+  "cleanupPeriodDays": 180,
   "env": {
 {{- if .claudeApiBaseUrl }}
     "ANTHROPIC_BASE_URL": {{ .claudeApiBaseUrl | toJson }}{{ if ne .machineType "work" }},{{ end }}
