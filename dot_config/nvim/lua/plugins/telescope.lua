@@ -6,6 +6,7 @@ return {
     "nvim-telescope/telescope-live-grep-args.nvim",
   },
   config = function()
+    local lga_actions = require("telescope-live-grep-args.actions")
     require("telescope").setup({
       defaults = {
         vimgrep_arguments = {
@@ -23,6 +24,15 @@ return {
       },
       extensions = {
         fzf = {},
+        live_grep_args = {
+          mappings = {
+            i = {
+              ["<C-k>"] = lga_actions.quote_prompt({
+                postfix = " --iglob '!**/*test*' --iglob '!**/*spec*'",
+              }),
+            },
+          },
+        },
       },
     })
     require("telescope").load_extension("fzf")
