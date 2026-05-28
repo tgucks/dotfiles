@@ -55,6 +55,22 @@ return {
         group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
         callback = function(args)
           local buf = args.buf
+
+          -- Detach LSP from buffers whose name uses a non-file URI scheme
+          -- (diffview://, fugitive://, oil://, ...). gopls and friends only
+          -- speak file:// and reject anything else with a JSON-RPC parse error.
+          -- TODO: if we ever want LSP features (hover, gd) inside diffview/etc.,
+          -- the cleaner path is plugin-side hooks (e.g. diffview's view.default
+          -- /view.merge_tool) rather than running language servers against
+          -- synthetic buffers. Drop or narrow this guard at that point.
+          local scheme = vim.api.nvim_buf_get_name(buf):match("^(%w[%w+.-]*)://")
+          if scheme and scheme ~= "file" then
+            vim.schedule(function()
+              vim.lsp.buf_detach_client(buf, args.data.client_id)
+            end)
+            return
+          end
+
           local function map(keys, func, desc)
             vim.keymap.set("n", keys, func, { buffer = buf, desc = desc })
           end
