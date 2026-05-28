@@ -59,13 +59,17 @@ return {
             vim.keymap.set("n", keys, func, { buffer = buf, desc = desc })
           end
 
-          map("gd",         vim.lsp.buf.definition,     "Go to definition")
-          map("gD",         vim.lsp.buf.declaration,    "Go to declaration")
-          map("gr",         vim.lsp.buf.references,     "References")
-          map("gi",         vim.lsp.buf.implementation, "Go to implementation")
-          map("<leader>ca", vim.lsp.buf.code_action,    "Code action")
-          map("[d",         vim.diagnostic.goto_prev,   "Prev diagnostic")
-          map("]d",         vim.diagnostic.goto_next,   "Next diagnostic")
+          map("gd",         vim.lsp.buf.definition,      "Go to definition")
+          map("gD",         vim.lsp.buf.declaration,     "Go to declaration")
+          map("gr",         vim.lsp.buf.references,      "References")
+          map("gi",         vim.lsp.buf.implementation,  "Go to implementation")
+          map("gy",         vim.lsp.buf.type_definition, "Go to type definition")
+          map("<leader>ca", vim.lsp.buf.code_action,     "Code action")
+          map("<leader>cn", vim.lsp.buf.rename,          "Rename symbol")
+          map("g<",         vim.lsp.buf.incoming_calls,  "Incoming calls")
+          map("g>",         vim.lsp.buf.outgoing_calls,  "Outgoing calls")
+          map("[d",         vim.diagnostic.goto_prev,    "Prev diagnostic")
+          map("]d",         vim.diagnostic.goto_next,    "Next diagnostic")
 
           -- K cycles: hover -> diagnostic -> hover
           map("K", function()
@@ -102,13 +106,40 @@ return {
               end
             end,
           })
+
+          -- Highlight all references to the symbol under the cursor while it
+          -- rests on one. Capability-gated so this is a no-op for LSPs that
+          -- don't implement textDocument/documentHighlight (e.g. ruff).
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if client and client.server_capabilities.documentHighlightProvider then
+            vim.api.nvim_create_autocmd("CursorHold", {
+              buffer = buf,
+              callback = vim.lsp.buf.document_highlight,
+            })
+            vim.api.nvim_create_autocmd("CursorMoved", {
+              buffer = buf,
+              callback = vim.lsp.buf.clear_references,
+            })
+          end
         end,
       })
 
-      -- Format Go files on save
+      -- Format Go files on save (organize imports + gofmt)
       vim.api.nvim_create_autocmd("BufWritePre", {
         pattern = "*.go",
         callback = function()
+          -- gopls exposes import organization as a code action, not a format
+          -- request, so vim.lsp.buf.format alone won't add/remove imports.
+          -- buf_request_sync (not the async vim.lsp.buf.code_action) so the
+          -- edit lands before the buffer is written to disk.
+          local params = vim.lsp.util.make_range_params(0, "utf-8")
+          params.context = { only = { "source.organizeImports" } }
+          local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, 1000)
+          for _, res in pairs(result or {}) do
+            for _, action in pairs(res.result or {}) do
+              if action.edit then vim.lsp.util.apply_workspace_edit(action.edit, "utf-8") end
+            end
+          end
           vim.lsp.buf.format({ async = false })
           -- gofmt rewrites indentation as tabs; re-apply editorconfig so the
           -- tab display width stays at whatever the project specifies, not the
