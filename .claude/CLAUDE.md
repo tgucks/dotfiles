@@ -8,7 +8,7 @@ This repo is a dotfiles/config management setup. Primary languages: Shell/Zsh, L
 ## Neovim
 
 - For Neovim configuration changes: always check the exact plugin API and option names before editing. Prefer editorconfig-aware solutions over hard-coded globals for formatting.
-- `auto-session` writes one session file per cwd. Tmux-resurrect must NOT inject `:AutoSession restore` / `+SessionRestore` / `--resume` into restored nvim panes - the user often runs multiple nvim instances in one cwd, and a shared restore causes `E303: Unable to open swap file` collisions and disables auto-save. Resurrect should re-run each pane's saved command verbatim. Manual `vim --resume` (one nvim at a time) is fine.
+- `auto-session` keys session files by cwd. nvim layout IS restored across tmux-resurrect reboots, but via PER-PANE session files (`tmux__<session>__<window>__<pane>.vim`), never a cwd-shared file. A cwd-shared restore across multiple nvim panes in one dir causes `E303: Unable to open swap file` collisions - that is the trap to avoid, not layout restoration itself. nvim is excluded from `@resurrect-default-processes`; `restore-nvim-sessions.sh` relaunches each pane as `nvim -S <per-pane file>`. Per-pane identity lives in `dot_config/nvim/lua/core/tmux_session.lua`. Manual `vim --resume` (cwd-keyed, one nvim at a time) is unaffected. See memory `auto-session-and-tmux-resurrect-contract`.
 
 ## Third-party plugins & libraries
 
