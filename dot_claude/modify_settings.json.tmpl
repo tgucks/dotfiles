@@ -8,10 +8,7 @@ DESIRED=$(cat <<'MANAGED'
   "cleanupPeriodDays": 180,
   "env": {
 {{- if .claudeApiBaseUrl }}
-    "ANTHROPIC_BASE_URL": {{ .claudeApiBaseUrl | toJson }}{{ if ne .machineType "work" }},{{ end }}
-{{- end }}
-{{- if ne .machineType "work" }}
-    "ENABLE_TOOL_SEARCH": "true"
+    "ANTHROPIC_BASE_URL": {{ .claudeApiBaseUrl | toJson }}
 {{- end }}
   },
 {{- if eq .machineType "work" }}
@@ -139,7 +136,8 @@ DESIRED=$(cat <<'MANAGED'
     "ask": [
       "Bash(rm:*)",
       "Bash(mv:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(git push:*)"
     ]
   }
 }
