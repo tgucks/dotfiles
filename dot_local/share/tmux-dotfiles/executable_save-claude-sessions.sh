@@ -6,8 +6,8 @@
 
 set -euo pipefail
 
-STATE_DIR="${TMPDIR:-/tmp}/claude-resurrect"
-OUT_DIR="$HOME/.local/share/tmux-resurrect-dotfiles"
+STATE_DIR="${CLAUDE_RESURRECT_STATE_DIR:-${TMPDIR:-/tmp}/claude-resurrect}"
+OUT_DIR="${CLAUDE_RESURRECT_SIDECAR_DIR:-$HOME/.local/share/tmux-resurrect-dotfiles}"
 OUT_FILE="$OUT_DIR/claude-sessions.json"
 
 mkdir -p "$OUT_DIR"
@@ -33,7 +33,13 @@ descendants() {
 }
 
 entries=()
-while IFS=$'\t' read -r pane_id pane_pid; do
+# We persist the STABLE pane identity (session:window.pane_index), not the
+# ephemeral pane_id (%N): tmux reassigns pane ids from scratch when the server
+# restarts (reboot -> continuum-boot), so a saved %N matches nothing after a
+# restart. tmux-resurrect itself keys panes on session/window/pane index, and
+# those values survive a restore, so we mirror that to relocate the pane.
+# pane_pid is only used now, to find the live claude process.
+while IFS=$'\t' read -r session_name window_index pane_index pane_pid; do
   [[ -z "$pane_pid" ]] && continue
   # Find the claude process in this pane's subtree
   claude_pid=$(descendants "$pane_pid" | awk '$2=="claude" {print $1; exit}')
@@ -42,8 +48,9 @@ while IFS=$'\t' read -r pane_id pane_pid; do
   state_file="$STATE_DIR/claude-$claude_pid.json"
   [[ -r "$state_file" ]] || continue
 
-  entries+=("$(jq -c --arg pane "$pane_id" '. + {pane: $pane}' "$state_file")")
-done < <(tmux list-panes -a -F '#{pane_id}	#{pane_pid}')
+  target="${session_name}:${window_index}.${pane_index}"
+  entries+=("$(jq -c --arg target "$target" '. + {target: $target}' "$state_file")")
+done < <(tmux list-panes -a -F '#{session_name}	#{window_index}	#{pane_index}	#{pane_pid}')
 
 if ((${#entries[@]} == 0)); then
   echo '{"sessions":[]}' > "$OUT_FILE"
