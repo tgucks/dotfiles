@@ -6,6 +6,7 @@ DESIRED=$(cat <<'MANAGED'
 {
   "autoUpdatesChannel": "latest",
   "cleanupPeriodDays": 180,
+  "preferredNotifChannel": "notifications_disabled",
   "env": {
 {{- if .claudeApiBaseUrl }}
     "ANTHROPIC_BASE_URL": {{ .claudeApiBaseUrl | toJson }}
@@ -35,7 +36,17 @@ DESIRED=$(cat <<'MANAGED'
         "hooks": [
           {
             "type": "command",
-            "command": "afplay /System/Library/Sounds/Glass.aiff"
+            "command": "bash ~/.claude/scripts/notify.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/scripts/notify.sh"
           }
         ]
       }
@@ -169,4 +180,5 @@ echo "$CURRENT" | jq --argjson desired "$DESIRED" '
       $b
     else $b end;
   deepmerge(.; $desired)
+  | del(.hooks.PermissionRequest)
 '
