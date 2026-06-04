@@ -29,6 +29,16 @@ DESIRED=$(cat <<'MANAGED'
           }
         ]
       }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Glass.aiff"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
