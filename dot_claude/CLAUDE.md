@@ -11,7 +11,11 @@
 
 ## Code Style
 
-- Write self-explanatory code instead of adding comments. Only comment when the code alone cannot convey the reasoning or decision behind it.
+- **Almost never add comments.** Write self-explanatory code instead - clear names and structure should carry the meaning. Do NOT add comments that restate what the code does, label sections, narrate steps, or explain obvious logic. When in doubt, leave the comment out.
+- The only acceptable comments:
+  - Documentation comments / docstrings that follow an existing pattern in the codebase (i.e., comparable functions, classes, or modules in that codebase are already documented the same way). Match their style and density; do not introduce docs where the surrounding code has none.
+  - A rare inline comment where the code genuinely cannot convey a non-obvious *why* (a workaround, a subtle invariant, a deliberate deviation). Explain the reasoning, never the mechanics.
+- Do not add comments to "be helpful" or to explain code back to me. Their absence is the default; their presence must be justified.
 - Never use "Em Dashes". Just use regular hyphens `-` instead.
 
 ## Important Reminders
