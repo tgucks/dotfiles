@@ -22,6 +22,7 @@ return {
       custom_highlights = function(colors)
         return {
           StatusLineNC = { bg = colors.mantle, fg = colors.overlay1 },
+          LineNr = { fg = colors.overlay0 },
         }
       end,
     })
