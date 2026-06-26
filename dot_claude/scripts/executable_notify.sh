@@ -14,6 +14,14 @@
 
 INPUT="$(cat)"
 
+# --- Drop the redundant idle nudge ---
+# A type=idle_prompt Notification fires ~10-30s after idle, but the Stop hook
+# already raised the immediate banner. Matched in-shell (no subprocess) so the
+# Stop and permission_prompt paths keep their current speed.
+case "$INPUT" in
+  *notification_type*idle_prompt*) exit 0 ;;
+esac
+
 # --- Per-session kill switch (prefix N toggles @claude-notify-off) ---
 if [ -n "$TMUX" ]; then
   SESS=$(tmux display -p -t "$TMUX_PANE" '#{session_name}' 2>/dev/null)
