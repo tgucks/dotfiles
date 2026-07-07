@@ -4,6 +4,7 @@ This repo is a dotfiles/config management setup. Primary languages: Shell/Zsh, L
 ## Debugging
 
 - When diagnosing shell/terminal issues, always check the actual shell version and invocation method first. Scripts may be explicitly invoked with a specific shell (e.g., `bash script.sh`), bypassing shebangs entirely.
+- Any end-to-end test that boots a real tmux server on an isolated socket (`tmux -L <socket>`) MUST clean up after itself: `tmux -L <socket> kill-server` and `rm` the socket file plus any scratch `@resurrect-dir`/temp files, ideally via an `EXIT` trap. Stray isolated servers linger and trip tmux-continuum's `another_tmux_server_running_on_startup` guard, which silently suppresses `--resume` restore on unrelated sockets and produces false test failures. Before trusting a resurrect/continuum failure, list live servers (`ps -u $(id -u) | grep '[t]mux'`) and dead-vs-live sockets in `/private/tmp/tmux-$(id -u)/` and kill any leftovers first.
 
 ## Neovim
 
