@@ -20,6 +20,25 @@ alias vim=nvim
 alias vi=nvim
 alias v=nvim
 
+# tmux wrapper: plain `tmux` always starts fresh (never auto-restores the
+# last saved session, never attaches to a running server's session — use
+# `tmux attach` for that). `tmux --resume` opts back in: attaches to the
+# most recently used session if a server is running, otherwise lets
+# tmux-continuum's normal boot-time restore fire.
+tmux() {
+  if [[ "${1-}" == "--resume" ]]; then
+    shift
+    if command tmux has-session 2>/dev/null; then
+      command tmux attach "$@"
+      return
+    fi
+    rm -f ~/tmux_no_auto_restore
+  else
+    touch ~/tmux_no_auto_restore
+  fi
+  command tmux "$@"
+}
+
 # `nvim --embed` defers loading init.lua until an RPC client attaches a UI.
 # When a spawner dies before its embed child (kill -9'd terminal, tmux pane
 # torn down forcibly), the kernel reparents nvim to PID 1 and it sits there
