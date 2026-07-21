@@ -23,6 +23,7 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.wrap = false
+vim.opt.scrolloff = 5
 
 -- Default indentation: 2 spaces
 vim.opt.expandtab = true
