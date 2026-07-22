@@ -16,7 +16,7 @@ return {
     { "<leader>dr", function() require("dap").restart() end,                                              desc = "Restart" },
     { "<leader>dq", function() require("dap").terminate() end,                                            desc = "Terminate" },
     { "<leader>dt", function() require("dap-go").debug_test() end,                                        desc = "Debug nearest test" },
-    { "<leader>du", function() require("dapui").toggle() end,                                             desc = "Toggle DAP UI" },
+    { "<leader>du", function() require("dapui").toggle({ reset = true }) end,                             desc = "Toggle DAP UI" },
     { "<leader>de", function() require("dapui").inspect() end,                                            desc = "Inspect expression", mode = { "n", "v" } },
     { "<leader>dl", function() require("dap").repl.open() end,                                            desc = "Open REPL" },
   },
