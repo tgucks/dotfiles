@@ -1,4 +1,5 @@
--- neotest: unified test runner UI, with Go support via neotest-golang
+-- neotest: unified test runner UI, with Go support via neotest-golang and
+-- JS/TS support via neotest-vitest
 return {
   "nvim-neotest/neotest",
   dependencies = {
@@ -6,6 +7,7 @@ return {
     "nvim-lua/plenary.nvim",
     "antoinemadec/FixCursorHold.nvim",
     "nvim-treesitter/nvim-treesitter",
+    "marilari88/neotest-vitest",
     {
       "fredrikaverpil/neotest-golang",
       version = "*",
@@ -60,6 +62,9 @@ return {
       adapters = {
         require("neotest-golang")({
           runner = "gotestsum",
+        }),
+        require("neotest-vitest")({
+          filter_dir = function(name) return name ~= "node_modules" end,
         }),
       },
       floating = {
