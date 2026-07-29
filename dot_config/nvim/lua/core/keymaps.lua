@@ -40,6 +40,24 @@ vim.keymap.set("n", "<leader>cp", function()
   vim.notify("Copied: " .. path)
 end, { desc = "Copy relative path of current file" })
 
+-- Toggle line wrap + "logical" navigation (gj/gk/g0/g^/g$ instead of j/k/0/^/$)
+-- so cursor movement follows displayed screen lines while wrapped.
+local wrap_enabled = false
+local wrap_nav_keys = { "j", "k", "0", "^", "$" }
+
+vim.keymap.set("n", "<leader>w", function()
+  wrap_enabled = not wrap_enabled
+  vim.opt.wrap = wrap_enabled
+  vim.opt.linebreak = wrap_enabled
+  for _, lhs in ipairs(wrap_nav_keys) do
+    if wrap_enabled then
+      vim.keymap.set({ "n", "v" }, lhs, "g" .. lhs)
+    else
+      pcall(vim.keymap.del, { "n", "v" }, lhs)
+    end
+  end
+end, { desc = "Toggle line wrap" })
+
 -- Close all floating windows and suppress auto-reopen until cursor moves
 vim.keymap.set("n", "<Esc>", function()
   vim.b[vim.api.nvim_get_current_buf()].lsp_float_state = "dismissed"
