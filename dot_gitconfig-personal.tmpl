@@ -5,7 +5,8 @@
 # Both accounts live at github.com, so the key - not the URL - decides which
 # one you authenticate as. Rewrite to the github-personal Host alias from
 # ~/.ssh/config, which pins the personal key.
-# Does not apply to git clone: includeIf matches a repo that does not exist
-# yet, so clone personal repos as git@github-personal:owner/repo.git.
+# Applies to git clone too - the condition is evaluated against the
+# destination gitdir, so cloning into one of these dirs is enough. The
+# rewrite happens at connection time, so remote.origin.url stays github.com.
 [url "git@github-personal:"]
     insteadOf = git@github.com:

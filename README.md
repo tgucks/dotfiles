@@ -124,9 +124,14 @@ ssh -T git@github.com          # -> work account
 ssh -T git@github-personal     # -> tgucks
 ```
 
-The rewrite does not cover `git clone` - `includeIf "gitdir:"` matches a repo
-that does not exist yet - so clone personal repos with the alias spelled out:
-`git clone git@github-personal:tgucks/some-repo.git`.
+Cloning works with a plain `github.com` URL as long as the **destination** is
+inside one of those dirs - `includeIf` is evaluated against the new repo's
+gitdir, not your current directory. `git clone git@github.com:tgucks/x.git
+~/code/personal/x` picks up the personal key; the same clone into `~/work`
+does not, whichever directory you run it from.
+
+The rewrite is applied at connection time, so `remote.origin.url` stays
+`git@github.com:...` and the repo remains portable to a personal machine.
 
 `gh` is unaffected; it authenticates over HTTPS with its own token
 (`gh auth login`, `gh auth switch`).
