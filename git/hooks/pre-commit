@@ -47,7 +47,7 @@ while IFS= read -r path; do
         echo "pre-commit: $path contains a value matching a known token format" >&2
         fail=1
     fi
-done < <(git diff --cached --name-only --diff-filter=ACM -- obsidian)
+done < <(git diff --cached --name-only --diff-filter=ACMR -- obsidian)
 
 if (( fail )); then
     echo >&2
