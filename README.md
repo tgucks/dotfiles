@@ -14,6 +14,69 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply tgucks --source ~/dotfiles
 chezmoi update    # git pull + apply
 ```
 
+### New work machine
+
+Set up [the two SSH keys](#two-github-accounts-over-ssh-work-machines) first and
+confirm each alias authenticates as the right account, then:
+
+```bash
+brew install chezmoi
+chezmoi init --source ~/dotfiles https://github.com/tgucks/dotfiles.git
+```
+
+HTTPS for the clone: the repo is public, so it needs no key, and it avoids
+`git@github.com:` resolving to the work account before the aliases are proven.
+`--source ~/dotfiles` is not optional - `dot_gitconfig.tmpl` hardcodes
+`[include] path = ~/dotfiles/git/gitconfig`, so a clone anywhere else silently
+drops the shared aliases and delta config.
+
+Answer the prompts:
+
+| Prompt | Answer |
+|---|---|
+| Machine type | `work` |
+| Headless server | `false` |
+| Git user name / email | **personal identity** |
+| Claude API base URL | leave empty until the gateway exists |
+| Claude marketplace URL | leave empty |
+| Work git user name / email | work identity |
+
+The git identity prompt is the trap: it sets the top-level `[user]`, which is
+the *personal* fallback. `~/.gitconfig-work` overrides it everywhere, and
+`~/dotfiles` and `~/code/personal` override back. Work details go in the work
+prompts.
+
+An `ANTHROPIC_BASE_URL` set before the gateway is real routes every request
+through the wrong proxy, so leave it empty rather than guessing.
+
+Review before applying - the first apply runs `brew bundle`:
+
+```bash
+chezmoi diff | less
+chezmoi apply
+```
+
+Then point the repo at the personal account, since the clone is HTTPS:
+
+```bash
+chezmoi cd
+git remote set-url origin git@github-personal:tgucks/dotfiles.git
+git push
+```
+
+Verify, then open a new terminal:
+
+```bash
+cd ~/work-repo && git config user.email   # work address
+cd ~/dotfiles  && git config user.email   # personal noreply
+command -v gitleaks                       # the pre-commit hook fails closed without it
+git -C ~/dotfiles config core.hooksPath   # git/hooks
+```
+
+Still manual: `gh auth login` (separate token auth), Claude Code credentials,
+and - if a work Obsidian vault is registered - deciding whether to mark it
+managed. See [Obsidian](#obsidian); an existing vault needs care.
+
 ## Daily workflow
 
 ```bash
@@ -69,6 +132,17 @@ touch <vault>/.obsidian-managed
 ```
 
 Registered vaults without it are skipped with a message. This keeps a work vault out of reach of an accidental apply.
+
+Marking a vault that already has its own setup is not a merge. `community-plugins.json`
+is the list of *enabled* community plugins and gets replaced wholesale, so a plugin
+the vault had and this repo does not is switched off - its code and its `data.json`
+survive under `.obsidian/plugins/`, so re-enabling it in the UI restores it, but it
+will not come back on its own. `core-plugins.json`, `hotkeys.json` and `app.json` are
+replaced the same way. Notes and other plugins' settings are never touched.
+
+So for an existing vault, either leave it unmarked, or add its extra plugins to
+`obsidian/config/community-plugins.json` first and copy anything worth keeping out of
+its `hotkeys.json` and `app.json` before marking it.
 
 ### Community plugins
 
