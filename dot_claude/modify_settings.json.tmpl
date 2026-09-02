@@ -5,16 +5,13 @@
 DESIRED=$(cat <<'MANAGED'
 {
   "autoUpdatesChannel": "latest",
-  "cleanupPeriodDays": 180,
+  "cleanupPeriodDays": {{ if eq .machineType "work" }}90{{ else }}180{{ end }},
   "preferredNotifChannel": "notifications_disabled",
   "env": {
 {{- if .claudeApiBaseUrl }}
     "ANTHROPIC_BASE_URL": {{ .claudeApiBaseUrl | toJson }}
 {{- end }}
   },
-{{- if eq .machineType "work" }}
-  "apiKeyHelper": "~/.claude/claudecodeauth",
-{{- end }}
   "hooks": {
     "SessionStart": [
       {
@@ -61,16 +58,14 @@ DESIRED=$(cat <<'MANAGED'
     "command": "bash ~/.claude/scripts/file-suggestion.sh"
   },
   "permissions": {
-{{- if eq .machineType "work" }}
     "deny": [
-      "WebSearch"
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/chezmoi/**)",
+      "Read(**/.env)",
+      "Read(**/.env.*)"
     ],
-{{- end }}
     "allow": [
-      "WebFetch",
-{{- if ne .machineType "work" }}
-      "WebSearch",
-{{- end }}
       "Read",
       "Glob",
       "Grep",
@@ -78,7 +73,6 @@ DESIRED=$(cat <<'MANAGED'
       "mcp__plugin_context7_context7__query-docs",
       "Bash(git blame:*)",
       "Bash(git check-ignore:*)",
-      "Bash(git clone:*)",
       "Bash(git describe:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
@@ -92,18 +86,6 @@ DESIRED=$(cat <<'MANAGED'
       "Bash(git show:*)",
       "Bash(git show-ref:*)",
       "Bash(git status:*)",
-      "Bash(git * blame:*)",
-      "Bash(git * describe:*)",
-      "Bash(git * diff:*)",
-      "Bash(git * log:*)",
-      "Bash(git * ls-remote:*)",
-      "Bash(git * merge-base:*)",
-      "Bash(git * rev-list:*)",
-      "Bash(git * rev-parse:*)",
-      "Bash(git * shortlog:*)",
-      "Bash(git * show:*)",
-      "Bash(git * show-ref:*)",
-      "Bash(git * status:*)",
       "Bash(gh alias list:*)",
       "Bash(gh auth status:*)",
       "Bash(gh browse:*)",
@@ -138,7 +120,6 @@ DESIRED=$(cat <<'MANAGED'
       "Bash(gh variable list:*)",
       "Bash(gh workflow list:*)",
       "Bash(gh workflow view:*)",
-      "Bash(cp:*)",
       "Bash(ls:*)",
       "Bash(grep:*)",
       "Bash(rg:*)",
@@ -146,14 +127,10 @@ DESIRED=$(cat <<'MANAGED'
       "Bash(tail:*)",
       "Bash(pwd:*)",
       "Bash(head:*)"
-{{- if eq .machineType "work" }},
-      "mcp__atlas__getJiraIssue",
-      "mcp__atlas__getConfluencePage",
-      "mcp__atlas__getAccessibleAtlassianResources"
-{{- end }}
     ],
     "ask": [
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git clone:*)"
     ]
   }
 }
@@ -175,5 +152,4 @@ echo "$CURRENT" | jq --argjson desired "$DESIRED" '
       $b
     else $b end;
   deepmerge(.; $desired)
-  | del(.hooks.PermissionRequest)
 '
