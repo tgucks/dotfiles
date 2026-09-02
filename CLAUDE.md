@@ -49,6 +49,12 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 
 `obsidian/` holds vault *config only* - never notes. `apply-obsidian-config.sh` reads Obsidian's own vault registry and copies the config into every vault it finds; the repo is one-way source of truth, so UI changes worth keeping must be copied back into `obsidian/config/` by hand. Community plugin code is not vendored, only each plugin's `data.json`.
 
+This repo is public. `workspace.json` / `workspace-mobile.json` / `graph.json` must never be tracked - they leak note paths and titles - and plugin `data.json` files often hold API tokens. Both are enforced by `git/hooks/pre-commit`; never suggest `--no-verify` to get past it.
+
+### Git hooks
+
+`git/hooks/` is tracked and installed via `core.hooksPath` by `run_onchange_after_06-install-git-hooks.sh.tmpl`. Add new hooks there, not to `.git/hooks/`.
+
 ### Git config
 
 `dot_gitconfig.tmpl` generates `~/.gitconfig` with identity from chezmoi data, `[includeIf]` directives for work machines, and an `[include]` pointing to `git/gitconfig` for shared aliases.
@@ -63,6 +69,7 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 | `run_onchange_after_nvim-plugins.sh.tmpl` | When any nvim `*.lua` file changes |
 | `run_onchange_after_tpm-plugins.sh.tmpl` | When `tmux.conf` changes |
 | `run_onchange_after_05-obsidian-config.sh.tmpl` | When any file under `obsidian/` changes |
+| `run_onchange_after_06-install-git-hooks.sh.tmpl` | When any file under `git/hooks/` changes |
 
 ### Neovim plugins
 

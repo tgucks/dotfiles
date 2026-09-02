@@ -74,3 +74,10 @@ Their settings *are* tracked, so the apply script seeds `plugins/<id>/data.json`
 ### Editing settings
 
 The repo is the source of truth; `chezmoi apply` overwrites vault config with what's committed. If you change something in Obsidian's UI and want to keep it, copy the changed file back into `obsidian/config/` and commit it. Quit Obsidian before applying - it rewrites its config files on exit and will clobber a fresh apply.
+
+That copy-back step is the only way vault data can reach this repo, and **this repo is public**, so it is guarded:
+
+- `.gitignore` excludes `workspace.json`, `workspace-mobile.json` and `graph.json` - they record the paths and titles of your notes.
+- `git/hooks/pre-commit` refuses those files even if force-added, and scans any staged `obsidian/config/plugins/*/data.json` for credential-shaped keys (`apiKey`, `accessToken`, `clientSecret`, ...) and known token formats (`ghp_`, `sk-`, `xoxb-`, `AKIA...`, JWTs, PEM private keys). Plenty of plugins keep API tokens in `data.json`.
+
+`run_onchange_after_06-install-git-hooks.sh.tmpl` installs the hooks by pointing this repo's `core.hooksPath` at `git/hooks`, so a fresh clone is guarded after the first `chezmoi apply`. To do it by hand: `git -C ~/dotfiles config core.hooksPath git/hooks`.

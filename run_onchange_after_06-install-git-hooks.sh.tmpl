@@ -1,0 +1,11 @@
+#!/bin/bash
+# Runs when a tracked git hook changes
+# hooks hash: {{ output "sh" "-c" (printf "find '%s/git/hooks' -type f | sort | xargs cat | shasum -a 256" .chezmoi.sourceDir) | trim }}
+
+SOURCE_DIR="{{ .chezmoi.sourceDir }}"
+
+if [[ -d "$SOURCE_DIR/git/hooks" ]] && git -C "$SOURCE_DIR" rev-parse --git-dir &>/dev/null; then
+    chmod +x "$SOURCE_DIR/git/hooks/"* 2>/dev/null
+    git -C "$SOURCE_DIR" config core.hooksPath git/hooks
+    echo "Installed dotfiles git hooks"
+fi
