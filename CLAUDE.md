@@ -51,7 +51,7 @@ On work machines `~/.gitconfig-personal` also rewrites `git@github.com:` to the 
 
 ### Obsidian
 
-`obsidian/` holds vault *config only* - never notes. `apply-obsidian-config.sh` reads Obsidian's own vault registry and copies the config into each vault holding a `.obsidian-managed` marker file - opt-in, so a work vault is never reconfigured by accident; the repo is one-way source of truth, so UI changes worth keeping must be copied back into `obsidian/config/` by hand. Community plugin code is not vendored, only each plugin's `data.json`.
+`obsidian/` holds vault *config only* - never notes. `apply-obsidian-config.sh` reads Obsidian's own vault registry and copies the config into each vault holding a `.obsidian-managed` marker file - opt-in, so a work vault is never reconfigured by accident; the repo is one-way source of truth, so UI changes worth keeping must be copied back into `obsidian/config/` by hand. Community plugin code is not vendored, only each plugin's `data.json`. `community-plugins.json` is the exception to one-way sync: it is unioned with the vault's existing list so an apply never disables a plugin the vault has and the repo does not.
 
 This repo is public. `workspace.json` / `workspace-mobile.json` / `graph.json` must never be tracked - they leak note paths and titles - and plugin `data.json` files often hold API tokens. Both are enforced by `git/hooks/pre-commit`; never suggest `--no-verify` to get past it.
 

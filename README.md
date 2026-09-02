@@ -133,16 +133,15 @@ touch <vault>/.obsidian-managed
 
 Registered vaults without it are skipped with a message. This keeps a work vault out of reach of an accidental apply.
 
-Marking a vault that already has its own setup is not a merge. `community-plugins.json`
-is the list of *enabled* community plugins and gets replaced wholesale, so a plugin
-the vault had and this repo does not is switched off - its code and its `data.json`
-survive under `.obsidian/plugins/`, so re-enabling it in the UI restores it, but it
-will not come back on its own. `core-plugins.json`, `hotkeys.json` and `app.json` are
-replaced the same way. Notes and other plugins' settings are never touched.
+`community-plugins.json` is the one file that is merged rather than replaced. It lists
+the *enabled* community plugins, so overwriting it would silently switch off anything a
+vault has that this repo does not; instead the two lists are unioned and the script
+reports what it kept. A plugin is therefore never disabled by an apply - to turn one
+off, disable it in Obsidian on each machine.
 
-So for an existing vault, either leave it unmarked, or add its extra plugins to
-`obsidian/config/community-plugins.json` first and copy anything worth keeping out of
-its `hotkeys.json` and `app.json` before marking it.
+`core-plugins.json`, `hotkeys.json` and `app.json` **are** replaced wholesale, so a
+vault with its own hotkeys or editor preferences loses them. Notes and other plugins'
+`data.json` are never touched.
 
 ### Community plugins
 

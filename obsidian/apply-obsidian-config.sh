@@ -48,8 +48,27 @@ while IFS= read -r vault; do
 
     echo "Applying Obsidian config to $vault"
     mkdir -p "$vault/.obsidian"
+
+    # community-plugins.json lists the *enabled* plugins. Replacing it would
+    # switch off anything installed in this vault that the repo does not know
+    # about, so the two lists are merged below. Captured before the copy.
+    enabled="$vault/.obsidian/community-plugins.json"
+    vault_plugins="[]"
+    if [[ -f "$enabled" ]] && jq -e 'type == "array"' "$enabled" >/dev/null 2>&1; then
+        vault_plugins="$(cat "$enabled")"
+    fi
+
     cp -R "$SRC_DIR/config/." "$vault/.obsidian/"
     cp "$SRC_DIR/obsidian.vimrc" "$vault/.obsidian.vimrc"
+
+    jq -s 'add | unique' \
+        <(printf '%s' "$vault_plugins") \
+        "$SRC_DIR/config/community-plugins.json" > "$enabled.tmp"
+    mv "$enabled.tmp" "$enabled"
+
+    extra="$(jq -r --slurpfile repo "$SRC_DIR/config/community-plugins.json" \
+        '. - $repo[0] | join(", ")' <<< "$vault_plugins")"
+    [[ -n "$extra" ]] && echo "  kept this vault's own plugins enabled: $extra" || true
 
     missing=()
     while IFS= read -r plugin; do
