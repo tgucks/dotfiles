@@ -78,6 +78,14 @@ The repo is the source of truth; `chezmoi apply` overwrites vault config with wh
 That copy-back step is the only way vault data can reach this repo, and **this repo is public**, so it is guarded:
 
 - `.gitignore` excludes `workspace.json`, `workspace-mobile.json` and `graph.json` - they record the paths and titles of your notes.
-- `git/hooks/pre-commit` refuses those files even if force-added, and scans any staged `obsidian/config/plugins/*/data.json` for credential-shaped keys (`apiKey`, `accessToken`, `clientSecret`, ...) and known token formats (`ghp_`, `sk-`, `xoxb-`, `AKIA...`, JWTs, PEM private keys). Plenty of plugins keep API tokens in `data.json`.
+- `git/hooks/pre-commit` refuses those files even if force-added.
+
+The hook also runs `gitleaks git --staged` over the **whole** staged diff, not just the Obsidian files, so its rules cover every commit to this repo. On top of that it scans any staged `obsidian/config/plugins/*/data.json` for credential-shaped keys (`apiKey`, `accessToken`, `clientSecret`, ...) with a non-empty value - deliberately broader than gitleaks, which matches on the shape of the value and so misses an unrecognised token under an obviously-named key. Plenty of plugins keep API tokens in `data.json`.
+
+If gitleaks is missing the hook warns and falls through to the Obsidian rules rather than blocking the commit. `brew install gitleaks` (in the Brewfile, so a new mac gets it automatically).
+
+`tests/test_precommit_hook.sh` covers all of the above in a throwaway repo.
 
 `run_onchange_after_06-install-git-hooks.sh.tmpl` installs the hooks by pointing this repo's `core.hooksPath` at `git/hooks`, so a fresh clone is guarded after the first `chezmoi apply`. To do it by hand: `git -C ~/dotfiles config core.hooksPath git/hooks`.
+
+This is **repo-local, not global** - it only runs for commits in `~/dotfiles` and its worktrees. Nothing is written to `~/.gitconfig`, so your other repos are unaffected.

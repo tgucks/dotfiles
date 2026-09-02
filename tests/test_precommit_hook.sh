@@ -1,0 +1,89 @@
+#!/bin/bash
+# Exercises git/hooks/pre-commit in a throwaway repo under $TMPDIR.
+# Never touches the dotfiles repo itself.
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+HOOK="$REPO_ROOT/git/hooks/pre-commit"
+BASE="$(mktemp -d "${TMPDIR:-/tmp}/precommit-test.XXXXXX")"
+trap 'rm -rf "$BASE"' EXIT
+
+cd "$BASE" || exit 1
+git init -q .
+mkdir -p git/hooks obsidian/config/plugins/some-plugin dot_config/nvim
+cp "$HOOK" git/hooks/pre-commit
+git config core.hooksPath git/hooks
+git config user.email test@example.com
+git config user.name test
+echo '{"vimrcFileName":".obsidian.vimrc"}' > obsidian/config/plugins/some-plugin/data.json
+echo 'vim.opt.number = true' > dot_config/nvim/init.lua
+git add -A >/dev/null && git commit -q -m base
+
+pass=0
+failed=0
+
+try() { # try <name> <expected rc: 0 allowed, 1 blocked>
+    local name="$1" want="$2" rc
+    git add -A -f >/dev/null 2>&1
+    git commit -m "$name" >"$BASE/out" 2>&1
+    rc=$?
+    (( rc > 1 )) && rc=1
+    if [[ "$rc" == "$want" ]]; then
+        echo "ok   - $name"
+        (( pass++ ))
+    else
+        echo "FAIL - $name (want rc=$want, got rc=$rc)"
+        sed 's/^/       /' "$BASE/out"
+        (( failed++ ))
+    fi
+    git reset -q --hard HEAD >/dev/null 2>&1
+    git clean -qfd >/dev/null 2>&1
+}
+
+# Not AWS's AKIAIOSFODNN7EXAMPLE - gitleaks allowlists that as a known example.
+AWS_KEY='AKIA4ZXCVBNM7QWERTYU' # gitleaks:allow
+GH_PAT='ghp_012345678901234567890123456789abcdef' # gitleaks:allow
+
+echo "== gitleaks, whole staged diff =="
+printf 'local k = "%s"\n' "$AWS_KEY" > dot_config/nvim/secret.lua
+try "aws key anywhere in the repo is blocked" 1
+
+printf 'local t = "%s"\n' "$GH_PAT" > dot_config/nvim/secret.lua
+try "github PAT anywhere in the repo is blocked" 1
+
+printf 'local ok = "just a normal string"\n' > dot_config/nvim/fine.lua
+try "ordinary config passes" 0
+
+echo "== obsidian-specific rules =="
+echo '{"apiKey":"abc123def456","other":true}' > obsidian/config/plugins/some-plugin/data.json # gitleaks:allow
+try "apiKey holding an unrecognised token is blocked" 1
+
+echo '{"settings":{"personalAccessToken":"hunter2"}}' > obsidian/config/plugins/some-plugin/data.json
+try "personalAccessToken is blocked" 1
+
+echo '{"apiKey":"","enabled":true}' > obsidian/config/plugins/some-plugin/data.json
+try "empty apiKey passes" 0
+
+echo '{"main":{"id":"some note.md"}}' > obsidian/config/workspace.json
+try "workspace.json is blocked even when force-added" 1
+
+echo '{"colorGroups":[]}' > obsidian/config/graph.json
+try "graph.json is blocked even when force-added" 1
+
+echo "== degradation =="
+printf 'local k = "%s"\n' "$AWS_KEY" > dot_config/nvim/secret.lua
+git add -A -f >/dev/null 2>&1
+PATH=/usr/bin:/bin git commit -m "no gitleaks on PATH" >"$BASE/out" 2>&1
+rc=$?
+if (( rc == 0 )) && grep -q "gitleaks not installed" "$BASE/out"; then
+    echo "ok   - without gitleaks: warns and falls through to the obsidian rules"
+    (( pass++ ))
+else
+    echo "FAIL - without gitleaks (rc=$rc)"
+    sed 's/^/       /' "$BASE/out"
+    (( failed++ ))
+fi
+
+echo
+echo "passed=$pass failed=$failed"
+(( failed == 0 ))
