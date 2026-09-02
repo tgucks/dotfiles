@@ -39,6 +39,8 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 | `dot_gitconfig-work.tmpl` | `~/.gitconfig-work` (work machines only) |
 | `dot_gitconfig-personal.tmpl` | `~/.gitconfig-personal` (work machines only) |
 
+On work machines `~/.gitconfig-personal` also rewrites `git@github.com:` to the `github-personal` SSH host alias, which is NOT managed by this repo - it must exist in `~/.ssh/config` or personal repos fail to resolve. See README "Two GitHub accounts over SSH".
+
 ### Terminal
 
 - The repo tracks a ghostty config at `dot_config/ghostty/config`, but the user's actual terminal is iTerm2. Treat the ghostty config as unused/legacy — do not assume terminal-related changes should go there.

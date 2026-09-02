@@ -90,6 +90,47 @@ That copy-back step is the only way vault data can reach this repo, and **this r
 
 The hook also runs `gitleaks git --staged` over the **whole** staged diff, not just the Obsidian files, so its rules cover every commit to this repo. On top of that it scans any staged `obsidian/config/plugins/*/data.json` for credential-shaped keys (`apiKey`, `accessToken`, `clientSecret`, ...) with a non-empty value - deliberately broader than gitleaks, which matches on the shape of the value and so misses an unrecognised token under an obviously-named key. Plenty of plugins keep API tokens in `data.json`.
 
+## Two GitHub accounts over SSH (work machines)
+
+`~/.gitconfig-personal` rewrites `git@github.com:` to `git@github-personal:`
+inside `~/dotfiles` and `~/code/personal`, so personal repos use the personal
+key without thinking about it. **That alias is not managed here** - create it
+by hand, or personal repos fail with "Could not resolve hostname
+github-personal":
+
+```sshconfig
+# ~/.ssh/config
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_work
+    IdentitiesOnly yes
+
+Host github-personal
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_personal
+    IdentitiesOnly yes
+```
+
+`IdentitiesOnly yes` matters: without it ssh-agent offers every key and you
+authenticate as whoever owns the first one GitHub accepts.
+
+Register each public key with its own account (GitHub rejects the same key on
+two accounts), then check which is which:
+
+```bash
+ssh -T git@github.com          # -> work account
+ssh -T git@github-personal     # -> tgucks
+```
+
+The rewrite does not cover `git clone` - `includeIf "gitdir:"` matches a repo
+that does not exist yet - so clone personal repos with the alias spelled out:
+`git clone git@github-personal:tgucks/some-repo.git`.
+
+`gh` is unaffected; it authenticates over HTTPS with its own token
+(`gh auth login`, `gh auth switch`).
+
 If gitleaks is missing the hook blocks the commit rather than committing unscanned - the Brewfile install is `|| true`-guarded, so a blocked brew would otherwise silently disable the guard on a public repo. `brew install gitleaks` (in the Brewfile, so a new mac gets it automatically), or `DOTFILES_ALLOW_MISSING_GITLEAKS=1 git commit ...` to skip the scan for one commit.
 
 `tests/test_precommit_hook.sh` covers all of the above in a throwaway repo.
