@@ -55,7 +55,7 @@ This repo is public. `workspace.json` / `workspace-mobile.json` / `graph.json` m
 
 `git/hooks/` is tracked and installed via `core.hooksPath` by `run_onchange_after_06-install-git-hooks.sh.tmpl`. Add new hooks there, not to `.git/hooks/`.
 
-`pre-commit` runs `gitleaks git --staged` over the whole staged diff plus the Obsidian-specific rules above. It degrades to a warning when gitleaks is absent. Tests: `bash tests/test_precommit_hook.sh`. When writing fixtures, note that gitleaks allowlists documented example credentials such as `AKIAIOSFODNN7EXAMPLE` - a test using one silently passes. Fixture tokens that are meant to stay in the repo need a trailing `# gitleaks:allow`, or the hook blocks its own test file.
+`pre-commit` runs `gitleaks git --staged` over the whole staged diff plus the Obsidian-specific rules above. It degrades to a warning when gitleaks is absent. Tests: `bash tests/test_precommit_hook.sh`. Two traps when writing fixtures. Assemble token-shaped values at runtime (`printf 'AKIA%s' '...'`) so no literal token pattern is stored in this public repo - otherwise GitHub secret scanning flags it and the hook blocks its own test file. And avoid documented example credentials such as `AKIAIOSFODNN7EXAMPLE`: gitleaks allowlists them, so the test passes for the wrong reason.
 
 The hook is installed per-repo, never globally - a global hook blocking `apiKey` would be unusable in real codebases.
 

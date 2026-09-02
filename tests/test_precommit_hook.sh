@@ -17,7 +17,10 @@ git config user.email test@example.com
 git config user.name test
 echo '{"vimrcFileName":".obsidian.vimrc"}' > obsidian/config/plugins/some-plugin/data.json
 echo 'vim.opt.number = true' > dot_config/nvim/init.lua
-git add -A >/dev/null && git commit -q -m base
+if ! git add -A >/dev/null || ! git commit -q -m base; then
+    echo "FATAL - could not create the base commit; every later result would be misleading" >&2
+    exit 1
+fi
 
 pass=0
 failed=0
@@ -40,9 +43,14 @@ try() { # try <name> <expected rc: 0 allowed, 1 blocked>
     git clean -qfd >/dev/null 2>&1
 }
 
-# Not AWS's AKIAIOSFODNN7EXAMPLE - gitleaks allowlists that as a known example.
-AWS_KEY='AKIA4ZXCVBNM7QWERTYU' # gitleaks:allow
-GH_PAT='ghp_012345678901234567890123456789abcdef' # gitleaks:allow
+# Assembled at runtime so no literal token pattern is ever stored in this public
+# repo, where GitHub secret scanning would flag it.
+# Note: not AWS's AKIAIOSFODNN7EXAMPLE - gitleaks allowlists that as a known
+# example, so a fixture using it would pass for the wrong reason.
+AWS_KEY="$(printf 'AKIA%s' '4ZXCVBNM7QWERTYU')"
+GH_PAT="$(printf 'ghp_%s' '012345678901234567890123456789abcdef')"
+# No recognisable prefix - only the key name marks this one as a credential.
+OPAQUE_TOKEN="$(printf 'abc123%s' 'def456')"
 
 echo "== gitleaks, whole staged diff =="
 printf 'local k = "%s"\n' "$AWS_KEY" > dot_config/nvim/secret.lua
@@ -55,7 +63,7 @@ printf 'local ok = "just a normal string"\n' > dot_config/nvim/fine.lua
 try "ordinary config passes" 0
 
 echo "== obsidian-specific rules =="
-echo '{"apiKey":"abc123def456","other":true}' > obsidian/config/plugins/some-plugin/data.json # gitleaks:allow
+printf '{"apiKey":"%s","other":true}\n' "$OPAQUE_TOKEN" > obsidian/config/plugins/some-plugin/data.json
 try "apiKey holding an unrecognised token is blocked" 1
 
 echo '{"settings":{"personalAccessToken":"hunter2"}}' > obsidian/config/plugins/some-plugin/data.json
@@ -71,9 +79,22 @@ echo '{"colorGroups":[]}' > obsidian/config/graph.json
 try "graph.json is blocked even when force-added" 1
 
 echo "== degradation =="
+# A PATH holding only the tools the hook needs, so gitleaks is absent no matter
+# where it is installed on this machine. /usr/bin would still contain it on a
+# box where it came from apt.
+STUB_PATH="$BASE/stub-bin"
+mkdir -p "$STUB_PATH"
+for tool in git grep sed; do
+    ln -sf "$(command -v "$tool")" "$STUB_PATH/$tool"
+done
+if PATH="$STUB_PATH" command -v gitleaks >/dev/null 2>&1; then
+    echo "FAIL - stub PATH still resolves gitleaks; the fallback is not being exercised"
+    (( failed++ ))
+fi
+
 printf 'local k = "%s"\n' "$AWS_KEY" > dot_config/nvim/secret.lua
 git add -A -f >/dev/null 2>&1
-PATH=/usr/bin:/bin git commit -m "no gitleaks on PATH" >"$BASE/out" 2>&1
+PATH="$STUB_PATH" git commit -m "no gitleaks on PATH" >"$BASE/out" 2>&1
 rc=$?
 if (( rc == 0 )) && grep -q "gitleaks not installed" "$BASE/out"; then
     echo "ok   - without gitleaks: warns and falls through to the obsidian rules"
