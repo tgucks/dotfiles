@@ -11,9 +11,15 @@ if command -v gitleaks &>/dev/null; then
     if ! gitleaks git --staged --no-banner --redact -v --log-level warn .; then
         fail=1
     fi
+elif [[ -n "${DOTFILES_ALLOW_MISSING_GITLEAKS:-}" ]]; then
+    echo "pre-commit: gitleaks not installed; scan skipped by request" >&2
 else
-    echo "pre-commit: gitleaks not installed, skipping the general secret scan" >&2
+    # Fail closed. The Brewfile install is || true-guarded, so a blocked brew
+    # would otherwise leave this repo committing to a public remote unscanned.
+    echo "pre-commit: gitleaks is not installed, refusing to commit unscanned" >&2
     echo "  install it with: brew install gitleaks" >&2
+    echo "  or set DOTFILES_ALLOW_MISSING_GITLEAKS=1 for this one commit" >&2
+    fail=1
 fi
 
 # Files that record which notes are open / recently visited. Never tracked.

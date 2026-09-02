@@ -42,7 +42,7 @@ dot_config/bat/config       -> ~/.config/bat/config
 dot_config/dot_ripgreprc    -> ~/.config/.ripgreprc
 dot_claude/                 -> ~/.claude/ (settings merged via modify_ script)
 git/gitconfig               -> included via [include] in ~/.gitconfig
-obsidian/                   -> copied into each registered vault (see below)
+obsidian/                   -> copied into each opted-in vault (see below)
 ```
 
 ## Claude settings
@@ -53,14 +53,22 @@ obsidian/                   -> copied into each registered vault (see below)
 
 Settings only - no notes. Each vault's contents stay wherever you keep them (iCloud, work drive, wherever); this repo only carries the config that makes every vault behave the same.
 
-`run_onchange_after_05-obsidian-config.sh.tmpl` runs `obsidian/apply-obsidian-config.sh`, which reads Obsidian's vault registry (`~/Library/Application Support/obsidian/obsidian.json` on macOS) and copies into **every** registered vault:
+`run_onchange_after_05-obsidian-config.sh.tmpl` runs `obsidian/apply-obsidian-config.sh`, which reads Obsidian's vault registry (`~/Library/Application Support/obsidian/obsidian.json` on macOS) and copies into every registered vault that holds a `.obsidian-managed` marker file:
 
 ```
 obsidian/obsidian.vimrc     -> <vault>/.obsidian.vimrc
 obsidian/config/            -> <vault>/.obsidian/
 ```
 
-Tracked under `obsidian/config/`: `app.json`, `core-plugins.json`, `community-plugins.json`, `hotkeys.json`, and per-plugin settings under `plugins/<id>/data.json`. Machine-local state (`workspace.json`, `graph.json`) is deliberately not tracked.
+Tracked under `obsidian/config/`: `app.json`, `core-plugins.json`, `community-plugins.json`, `hotkeys.json`, and per-plugin settings under `plugins/<id>/data.json`. Machine-local state (`workspace.json`, `graph.json`) is deliberately not tracked. The Obsidian Sync toggle is deliberately not managed either - applying it could switch Sync on in a vault governed by someone else's policy.
+
+A vault opts in with a marker file:
+
+```bash
+touch <vault>/.obsidian-managed
+```
+
+Registered vaults without it are skipped with a message. This keeps a work vault out of reach of an accidental apply.
 
 ### Community plugins
 
@@ -82,7 +90,7 @@ That copy-back step is the only way vault data can reach this repo, and **this r
 
 The hook also runs `gitleaks git --staged` over the **whole** staged diff, not just the Obsidian files, so its rules cover every commit to this repo. On top of that it scans any staged `obsidian/config/plugins/*/data.json` for credential-shaped keys (`apiKey`, `accessToken`, `clientSecret`, ...) with a non-empty value - deliberately broader than gitleaks, which matches on the shape of the value and so misses an unrecognised token under an obviously-named key. Plenty of plugins keep API tokens in `data.json`.
 
-If gitleaks is missing the hook warns and falls through to the Obsidian rules rather than blocking the commit. `brew install gitleaks` (in the Brewfile, so a new mac gets it automatically).
+If gitleaks is missing the hook blocks the commit rather than committing unscanned - the Brewfile install is `|| true`-guarded, so a blocked brew would otherwise silently disable the guard on a public repo. `brew install gitleaks` (in the Brewfile, so a new mac gets it automatically), or `DOTFILES_ALLOW_MISSING_GITLEAKS=1 git commit ...` to skip the scan for one commit.
 
 `tests/test_precommit_hook.sh` covers all of the above in a throwaway repo.
 

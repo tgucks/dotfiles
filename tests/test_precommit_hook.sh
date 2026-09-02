@@ -96,11 +96,23 @@ printf 'local k = "%s"\n' "$AWS_KEY" > dot_config/nvim/secret.lua
 git add -A -f >/dev/null 2>&1
 PATH="$STUB_PATH" git commit -m "no gitleaks on PATH" >"$BASE/out" 2>&1
 rc=$?
-if (( rc == 0 )) && grep -q "gitleaks not installed" "$BASE/out"; then
-    echo "ok   - without gitleaks: warns and falls through to the obsidian rules"
+if (( rc != 0 )) && grep -q "refusing to commit unscanned" "$BASE/out"; then
+    echo "ok   - without gitleaks: fails closed"
     (( pass++ ))
 else
-    echo "FAIL - without gitleaks (rc=$rc)"
+    echo "FAIL - without gitleaks should fail closed (rc=$rc)"
+    sed 's/^/       /' "$BASE/out"
+    (( failed++ ))
+fi
+
+PATH="$STUB_PATH" DOTFILES_ALLOW_MISSING_GITLEAKS=1 \
+    git commit -m "no gitleaks, opted out" >"$BASE/out" 2>&1
+rc=$?
+if (( rc == 0 )) && grep -q "skipped by request" "$BASE/out"; then
+    echo "ok   - without gitleaks: DOTFILES_ALLOW_MISSING_GITLEAKS allows the commit"
+    (( pass++ ))
+else
+    echo "FAIL - escape hatch did not allow the commit (rc=$rc)"
     sed 's/^/       /' "$BASE/out"
     (( failed++ ))
 fi

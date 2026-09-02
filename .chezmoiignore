@@ -8,6 +8,12 @@ git/**
 tests/**
 obsidian/**
 
+{{ if ne .machineType "work" }}
+# Split identities only exist on work machines
+.gitconfig-work
+.gitconfig-personal
+{{ end }}
+
 {{ if .isServer }}
 # Skip GUI/desktop configs on servers
 .config/ghostty/**

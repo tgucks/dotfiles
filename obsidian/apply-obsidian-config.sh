@@ -1,10 +1,11 @@
 #!/bin/bash
-# Copies the tracked Obsidian settings into every vault registered with the
-# Obsidian desktop app. Notes are never touched - only .obsidian/ config files
-# and the vimrc at the vault root.
+# Copies the tracked Obsidian settings into every registered vault that has
+# opted in with a .obsidian-managed marker file. Notes are never touched - only
+# .obsidian/ config files and the vimrc at the vault root.
 set -euo pipefail
 
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MARKER=".obsidian-managed"
 
 case "$(uname -s)" in
     Darwin) REGISTRY="$HOME/Library/Application Support/obsidian/obsidian.json" ;;
@@ -35,6 +36,13 @@ fi
 while IFS= read -r vault; do
     if [[ ! -d "$vault" ]]; then
         echo "Vault not on disk, skipping: $vault" >&2
+        continue
+    fi
+
+    # Opt-in per vault. A work vault must never be reconfigured by accident.
+    if [[ ! -f "$vault/$MARKER" ]]; then
+        echo "Not managed, skipping: $vault" >&2
+        echo "  to manage it: touch \"$vault/$MARKER\"" >&2
         continue
     fi
 

@@ -5,9 +5,18 @@
 
 set -euo pipefail
 
-JQ=/opt/homebrew/bin/jq
-FZF=/opt/homebrew/bin/fzf
-FD=/opt/homebrew/bin/fd
+# PATH is bare when Claude Code invokes this, so resolve each tool explicitly.
+_resolve() {
+  local name=$1 p
+  for p in "/opt/homebrew/bin/$name" "/usr/local/bin/$name" "$(command -v "$name" 2>/dev/null)"; do
+    [ -n "$p" ] && [ -x "$p" ] && { printf '%s' "$p"; return 0; }
+  done
+  return 1
+}
+
+JQ=$(_resolve jq) || exit 0
+FZF=$(_resolve fzf) || exit 0
+FD=$(_resolve fd) || exit 0
 
 payload=$(cat)
 query=$($JQ -r '.query // ""' <<<"$payload")

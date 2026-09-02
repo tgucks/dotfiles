@@ -9,6 +9,10 @@
 *.key
 credentials.json
 
+# psql history holds work DB names and query text; logs hold paths
+history-*
+*.log
+
 # Obsidian per-machine state - records which notes are open and recently visited
 obsidian/config/workspace.json
 obsidian/config/workspace-mobile.json

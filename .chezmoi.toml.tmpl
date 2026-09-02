@@ -4,9 +4,13 @@
 {{- $gitEmail := promptStringOnce . "gitEmail" "Git email" -}}
 {{- $claudeApiBaseUrl := "" -}}
 {{- $claudeMarketplaceUrl := "" -}}
+{{- $workGitName := "" -}}
+{{- $workGitEmail := "" -}}
 {{- if eq $machineType "work" -}}
 {{-   $claudeApiBaseUrl = promptStringOnce . "claudeApiBaseUrl" "Claude API base URL (work proxy, or leave empty)" -}}
 {{-   $claudeMarketplaceUrl = promptStringOnce . "claudeMarketplaceUrl" "Claude marketplace URL (leave empty to skip)" -}}
+{{-   $workGitName = promptStringOnce . "workGitName" "Work git user name" -}}
+{{-   $workGitEmail = promptStringOnce . "workGitEmail" "Work git email" -}}
 {{- end -}}
 
 sourceDir = {{ joinPath .chezmoi.homeDir "dotfiles" | quote }}
@@ -18,3 +22,5 @@ sourceDir = {{ joinPath .chezmoi.homeDir "dotfiles" | quote }}
     gitEmail = {{ $gitEmail | quote }}
     claudeApiBaseUrl = {{ $claudeApiBaseUrl | quote }}
     claudeMarketplaceUrl = {{ $claudeMarketplaceUrl | quote }}
+    workGitName = {{ $workGitName | quote }}
+    workGitEmail = {{ $workGitEmail | quote }}
