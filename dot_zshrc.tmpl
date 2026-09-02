@@ -5,13 +5,16 @@ typeset -U path
 {{ if eq .chezmoi.os "darwin" -}}
 # --- Homebrew ---
 {{ if eq .chezmoi.arch "arm64" -}}
-eval "$(/opt/homebrew/bin/brew shellenv)"
+[[ -x /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 {{ else -}}
-eval "$(/usr/local/bin/brew shellenv)"
+[[ -x /usr/local/bin/brew ]] && eval "$(/usr/local/bin/brew shellenv)"
 {{ end -}}
 
-# libpq (psql, pg_dump, etc.) is keg-only; expose its bin
-export PATH="$(brew --prefix libpq)/bin:$PATH"
+if (( $+commands[brew] )); then
+  BREW_PREFIX="$(brew --prefix)"
+  # libpq (psql, pg_dump, etc.) is keg-only; expose its bin
+  [[ -d "$BREW_PREFIX/opt/libpq/bin" ]] && export PATH="$BREW_PREFIX/opt/libpq/bin:$PATH"
+fi
 {{ end -}}
 
 # --- Locale ---
@@ -43,22 +46,31 @@ ZSH_THEME=""
 ZSH_DISABLE_COMPFIX=true
 plugins=(git)
 
-source $ZSH/oh-my-zsh.sh
+[[ -f "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
+
+# oh-my-zsh normally provides these; initialise them when it is absent
+(( $+functions[compdef] )) || { autoload -Uz compinit && compinit -C }
+(( $+functions[add-zsh-hook] )) || autoload -Uz add-zsh-hook
 zstyle ':completion:*' special-dirs false
 
 # --- Prompt (Pure) ---
 {{ if eq .chezmoi.os "darwin" -}}
-fpath+="$(brew --prefix)/share/zsh/site-functions"
+[[ -d "${BREW_PREFIX:-}/share/zsh/site-functions" ]] && fpath+="$BREW_PREFIX/share/zsh/site-functions"
 {{ end -}}
 autoload -U promptinit && promptinit
-prompt pure
+(( $+functions[prompt_pure_setup] )) && prompt pure
 
 # --- Plugins ---
 {{ if eq .chezmoi.os "darwin" -}}
 export HOMEBREW_NO_ENV_HINTS=1
-source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-source "$(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+for _zsh_plugin in \
+  zsh-autosuggestions/zsh-autosuggestions.zsh \
+  zsh-history-substring-search/zsh-history-substring-search.zsh \
+  zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+do
+  [[ -f "${BREW_PREFIX:-}/share/$_zsh_plugin" ]] && source "$BREW_PREFIX/share/$_zsh_plugin"
+done
+unset _zsh_plugin
 {{ else -}}
 # Linux: source plugins from system packages if available
 [[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh

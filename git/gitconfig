@@ -7,10 +7,10 @@
   date = format-local:%Y-%m-%d %H:%M:%S %Z (UTC%z)
 
 [core]
-  pager = delta
+  pager = command -v delta >/dev/null 2>&1 && delta || less
 
 [interactive]
-  diffFilter = delta --color-only
+  diffFilter = command -v delta >/dev/null 2>&1 && delta --color-only || cat
 
 [delta]
   navigate = true
