@@ -35,6 +35,7 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 | `dot_config/bat/config` | `~/.config/bat/config` |
 | `dot_config/dot_ripgreprc` | `~/.config/.ripgreprc` |
 | `dot_claude/` | `~/.claude/` |
+| `obsidian/` | every registered Obsidian vault (via `run_onchange_after_05`) |
 
 ### Terminal
 
@@ -43,6 +44,10 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 ### Claude settings
 
 `dot_claude/modify_settings.json.tmpl` is a modify script that deep-merges managed settings into `~/.claude/settings.json`. Keys that Claude writes at runtime (e.g., `model`) are preserved. Machine-specific values (API URLs) come from `chezmoi.toml` data, never committed.
+
+### Obsidian
+
+`obsidian/` holds vault *config only* - never notes. `apply-obsidian-config.sh` reads Obsidian's own vault registry and copies the config into every vault it finds; the repo is one-way source of truth, so UI changes worth keeping must be copied back into `obsidian/config/` by hand. Community plugin code is not vendored, only each plugin's `data.json`.
 
 ### Git config
 
@@ -57,6 +62,7 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 | `run_once_before_03-set-default-shell.sh` | Once (chsh to zsh) |
 | `run_onchange_after_nvim-plugins.sh.tmpl` | When any nvim `*.lua` file changes |
 | `run_onchange_after_tpm-plugins.sh.tmpl` | When `tmux.conf` changes |
+| `run_onchange_after_05-obsidian-config.sh.tmpl` | When any file under `obsidian/` changes |
 
 ### Neovim plugins
 

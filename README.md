@@ -42,8 +42,35 @@ dot_config/bat/config       -> ~/.config/bat/config
 dot_config/dot_ripgreprc    -> ~/.config/.ripgreprc
 dot_claude/                 -> ~/.claude/ (settings merged via modify_ script)
 git/gitconfig               -> included via [include] in ~/.gitconfig
+obsidian/                   -> copied into each registered vault (see below)
 ```
 
 ## Claude settings
 
 `dot_claude/modify_settings.json.tmpl` deep-merges managed settings into `~/.claude/settings.json` at apply time. Keys that Claude writes at runtime (e.g., `model`) are preserved. Machine-specific values (API URLs) come from `chezmoi.toml` data.
+
+## Obsidian
+
+Settings only - no notes. Each vault's contents stay wherever you keep them (iCloud, work drive, wherever); this repo only carries the config that makes every vault behave the same.
+
+`run_onchange_after_05-obsidian-config.sh.tmpl` runs `obsidian/apply-obsidian-config.sh`, which reads Obsidian's vault registry (`~/Library/Application Support/obsidian/obsidian.json` on macOS) and copies into **every** registered vault:
+
+```
+obsidian/obsidian.vimrc     -> <vault>/.obsidian.vimrc
+obsidian/config/            -> <vault>/.obsidian/
+```
+
+Tracked under `obsidian/config/`: `app.json`, `core-plugins.json`, `community-plugins.json`, `hotkeys.json`, and per-plugin settings under `plugins/<id>/data.json`. Machine-local state (`workspace.json`, `graph.json`) is deliberately not tracked.
+
+### Community plugins
+
+Plugin code is **not** vendored - install these by hand from Obsidian's community plugin browser on a new machine:
+
+- `obsidian-vimrc-support` - loads `.obsidian.vimrc`
+- `obsidian-relative-line-numbers`
+
+Their settings *are* tracked, so the apply script seeds `plugins/<id>/data.json` before the plugin exists. Installing the plugin afterwards drops `main.js`/`manifest.json` alongside it and keeps the settings. The script prints which plugins are still missing on each run.
+
+### Editing settings
+
+The repo is the source of truth; `chezmoi apply` overwrites vault config with what's committed. If you change something in Obsidian's UI and want to keep it, copy the changed file back into `obsidian/config/` and commit it. Quit Obsidian before applying - it rewrites its config files on exit and will clobber a fresh apply.
