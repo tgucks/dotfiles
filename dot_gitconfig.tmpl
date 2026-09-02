@@ -2,20 +2,14 @@
     name = {{ .gitName }}
     email = {{ .gitEmail }}
 {{ if eq .machineType "work" }}
+[include]
+    path = ~/.gitconfig-work
+
 [includeIf "gitdir:~/dotfiles/"]
-    path = ~/.gitconfig-personal
-
-[includeIf "gitdir:~/code/armada/"]
-    path = ~/.gitconfig-personal
-
-[includeIf "gitdir:~/code/armada-parent/"]
     path = ~/.gitconfig-personal
 
 [includeIf "gitdir:~/code/personal/"]
     path = ~/.gitconfig-personal
-
-[include]
-    path = ~/.gitconfig-work
 {{ end }}
 [include]
     path = ~/dotfiles/git/gitconfig
