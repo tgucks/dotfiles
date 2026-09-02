@@ -8,4 +8,9 @@
 *.pem
 *.key
 credentials.json
+
+# Obsidian per-machine state - records which notes are open and recently visited
+obsidian/config/workspace.json
+obsidian/config/workspace-mobile.json
+obsidian/config/graph.json
 docs/superpowers/

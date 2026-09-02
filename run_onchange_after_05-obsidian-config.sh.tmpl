@@ -1,0 +1,5 @@
+#!/bin/bash
+# Runs when any tracked Obsidian config file changes
+# obsidian config hash: {{ output "sh" "-c" (printf "find '%s/obsidian' -type f | sort | xargs cat | shasum -a 256" .chezmoi.sourceDir) | trim }}
+
+"{{ .chezmoi.sourceDir }}/obsidian/apply-obsidian-config.sh"

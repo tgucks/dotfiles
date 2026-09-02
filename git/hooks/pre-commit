@@ -1,0 +1,57 @@
+#!/bin/bash
+# Keeps secrets out of this public repo: gitleaks over the whole staged diff,
+# plus Obsidian-specific rules gitleaks has no way to know about.
+# See README "Obsidian".
+set -uo pipefail
+
+fail=0
+
+if command -v gitleaks &>/dev/null; then
+    # -v is what prints the findings; without it a block is silent.
+    if ! gitleaks git --staged --no-banner --redact -v --log-level warn .; then
+        fail=1
+    fi
+else
+    echo "pre-commit: gitleaks not installed, skipping the general secret scan" >&2
+    echo "  install it with: brew install gitleaks" >&2
+fi
+
+# Files that record which notes are open / recently visited. Never tracked.
+BLOCKED='^obsidian/config/(workspace|workspace-mobile|graph)\.json$'
+
+# Key names and token shapes that plugins commonly persist in data.json.
+# Deliberately broader than gitleaks: it catches an unrecognised token sitting
+# under an obviously-named key, which gitleaks' value-shaped rules miss.
+SECRET_KEYS='"[^"]*(api[-_ ]?key|access[-_ ]?token|auth[-_ ]?token|refresh[-_ ]?token|client[-_ ]?secret|password|passwd|secret|credential|private[-_ ]?key|bearer|session[-_ ]?id|cookie)[^"]*"[[:space:]]*:[[:space:]]*"[^"]+"'
+SECRET_VALUES='(ghp_|gho_|ghu_|ghs_|ghr_|github_pat_|sk-|xox[baprs]-|AKIA[0-9A-Z]{16}|eyJ[A-Za-z0-9_-]{10,}\.|-----BEGIN [A-Z ]*PRIVATE KEY-----)'
+
+while IFS= read -r path; do
+    if [[ "$path" =~ $BLOCKED ]]; then
+        echo "pre-commit: refusing to commit $path" >&2
+        echo "  it records the paths and titles of your notes - keep it untracked." >&2
+        fail=1
+        continue
+    fi
+
+    [[ "$path" == obsidian/config/plugins/*/data.json ]] || continue
+
+    staged="$(git show ":$path" 2>/dev/null)" || continue
+
+    if grep -Eiq "$SECRET_KEYS" <<< "$staged"; then
+        echo "pre-commit: $path has a key that looks like a credential:" >&2
+        grep -Eio "$SECRET_KEYS" <<< "$staged" | sed 's/^/    /' >&2
+        fail=1
+    fi
+
+    if grep -Eq "$SECRET_VALUES" <<< "$staged"; then
+        echo "pre-commit: $path contains a value matching a known token format" >&2
+        fail=1
+    fi
+done < <(git diff --cached --name-only --diff-filter=ACMR -- obsidian)
+
+if (( fail )); then
+    echo >&2
+    echo "Unstage the file, or remove the offending content, then commit again." >&2
+    echo "Do not bypass this with --no-verify - $(git remote get-url origin 2>/dev/null) is public." >&2
+    exit 1
+fi

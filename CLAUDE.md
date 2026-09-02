@@ -35,6 +35,7 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 | `dot_config/bat/config` | `~/.config/bat/config` |
 | `dot_config/dot_ripgreprc` | `~/.config/.ripgreprc` |
 | `dot_claude/` | `~/.claude/` |
+| `obsidian/` | every registered Obsidian vault (via `run_onchange_after_05`) |
 
 ### Terminal
 
@@ -43,6 +44,20 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 ### Claude settings
 
 `dot_claude/modify_settings.json.tmpl` is a modify script that deep-merges managed settings into `~/.claude/settings.json`. Keys that Claude writes at runtime (e.g., `model`) are preserved. Machine-specific values (API URLs) come from `chezmoi.toml` data, never committed.
+
+### Obsidian
+
+`obsidian/` holds vault *config only* - never notes. `apply-obsidian-config.sh` reads Obsidian's own vault registry and copies the config into every vault it finds; the repo is one-way source of truth, so UI changes worth keeping must be copied back into `obsidian/config/` by hand. Community plugin code is not vendored, only each plugin's `data.json`.
+
+This repo is public. `workspace.json` / `workspace-mobile.json` / `graph.json` must never be tracked - they leak note paths and titles - and plugin `data.json` files often hold API tokens. Both are enforced by `git/hooks/pre-commit`; never suggest `--no-verify` to get past it.
+
+### Git hooks
+
+`git/hooks/` is tracked and installed via `core.hooksPath` by `run_onchange_after_06-install-git-hooks.sh.tmpl`. Add new hooks there, not to `.git/hooks/`.
+
+`pre-commit` runs `gitleaks git --staged` over the whole staged diff plus the Obsidian-specific rules above. It degrades to a warning when gitleaks is absent. Tests: `bash tests/test_precommit_hook.sh`. Two traps when writing fixtures. Assemble token-shaped values at runtime (`printf 'AKIA%s' '...'`) so no literal token pattern is stored in this public repo - otherwise GitHub secret scanning flags it and the hook blocks its own test file. And avoid documented example credentials such as `AKIAIOSFODNN7EXAMPLE`: gitleaks allowlists them, so the test passes for the wrong reason.
+
+The hook is installed per-repo, never globally - a global hook blocking `apiKey` would be unusable in real codebases.
 
 ### Git config
 
@@ -57,6 +72,8 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 | `run_once_before_03-set-default-shell.sh` | Once (chsh to zsh) |
 | `run_onchange_after_nvim-plugins.sh.tmpl` | When any nvim `*.lua` file changes |
 | `run_onchange_after_tpm-plugins.sh.tmpl` | When `tmux.conf` changes |
+| `run_onchange_after_05-obsidian-config.sh.tmpl` | When any file under `obsidian/` changes |
+| `run_onchange_after_06-install-git-hooks.sh.tmpl` | When any file under `git/hooks/` changes |
 
 ### Neovim plugins
 

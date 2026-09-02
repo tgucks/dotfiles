@@ -6,6 +6,7 @@ docs/**
 terminal/**
 git/**
 tests/**
+obsidian/**
 
 {{ if .isServer }}
 # Skip GUI/desktop configs on servers
