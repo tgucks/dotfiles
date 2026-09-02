@@ -96,8 +96,9 @@ ghopen() {
 }
 
 # --- use bat for help output ---
+# Global aliases expand anywhere on the line, so -h is deliberately not one:
+# it would rewrite `ls -h`, `sort -h`, `docker run -h host` and friends.
 alias -g -- --help='--help 2>&1 | bat --language=help --style=plain'
-alias -g -- -h='--help 2>&1 | bat --language=help --style=plain'
 alias bathelp='bat --plain --language=help'
 help() {
     "$@" --help 2>&1 | bathelp
