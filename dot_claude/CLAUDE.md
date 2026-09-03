@@ -7,7 +7,7 @@
 
 ## Tools section
 
-- When using MCP tools (e.g., Atlassian MCP for Confluence/Jira), use the MCP tool directly rather than attempting WebFetch/defuddle workarounds. Check available MCP servers first with the appropriate commands.
+- When an MCP tool covers what you need, use it directly rather than attempting WebFetch/defuddle workarounds. Check available MCP servers first with the appropriate commands.
 
 ## Code Style
 
