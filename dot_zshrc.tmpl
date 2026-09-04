@@ -36,6 +36,13 @@ setopt HIST_REDUCE_BLANKS
 # --- Options ---
 setopt AUTO_CD
 setopt GLOB_DOTS
+setopt CDABLE_VARS
+
+# --- Named directories ---
+# `hash -d` (not a plain parameter) is what puts the name in $nameddirs, which
+# is the only source `cd`'s completer reads - so `cd do<TAB>` expands.
+# CDABLE_VARS then makes the bare `cd dotfiles` resolve as `cd ~dotfiles`.
+hash -d dotfiles=~/dotfiles
 
 # --- Completions ---
 fpath=("$HOME/.config/zsh/completions" $fpath)
