@@ -7,10 +7,10 @@ vim.api.nvim_create_autocmd({ "BufLeave", "WinLeave" }, {
   callback = function() vim.opt_local.relativenumber = false end,
 })
 
--- Go filetypes that nvim doesn't detect natively (gopls needs these)
+-- Filetypes that nvim doesn't detect natively
 vim.filetype.add({
   filename = { ["go.work"] = "gowork" },
-  extension = { gotmpl = "gotmpl" },
+  extension = { gotmpl = "gotmpl", psql = "sql" },
   pattern = { [".*%.go%.tmpl"] = "gotmpl" },
 })
 

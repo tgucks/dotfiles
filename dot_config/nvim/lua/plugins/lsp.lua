@@ -23,7 +23,7 @@ return {
     dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig", "hrsh7th/cmp-nvim-lsp", "j-hui/fidget.nvim" },
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = { "gopls", "basedpyright", "ruff", "ts_ls", "eslint", "bashls" },
+        ensure_installed = { "gopls", "basedpyright", "ruff", "ts_ls", "eslint", "bashls", "postgres_lsp" },
         automatic_installation = true,
       })
 
@@ -207,6 +207,18 @@ return {
       })
       vim.lsp.enable("gopls")
       vim.lsp.enable("bashls")
+
+      -- PostgreSQL SQL: syntax diagnostics and editor feedback. A git root is
+      -- sufficient; a postgres-language-server.jsonc file is optional.
+      local postgres_lsp_log_path = vim.fn.stdpath("state") .. "/postgres-language-server"
+      vim.fn.mkdir(postgres_lsp_log_path, "p")
+      vim.lsp.config("postgres_lsp", {
+        capabilities = capabilities,
+        cmd = { "postgres-language-server", "lsp-proxy", "--log-path=" .. postgres_lsp_log_path },
+        root_markers = { ".git" },
+        workspace_required = false,
+      })
+      vim.lsp.enable("postgres_lsp")
 
       -- Python: type checking, hover, completions, go-to-definition
       vim.lsp.config("basedpyright", {
