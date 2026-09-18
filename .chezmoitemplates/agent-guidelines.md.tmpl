@@ -1,0 +1,31 @@
+# Development Guidelines
+
+## Platform
+
+- When working on macOS, always account for BSD tool differences (e.g., `find`, `sed -i`) — do not assume GNU/Linux behavior. Test commands mentally against macOS before suggesting them.
+- Default shell is zsh: prefer zsh-compatible syntax for snippets, aliases, and one-liners. Mind differences from bash in arrays, parameter expansion, and `read` flags.
+
+## Tools section
+
+- When a relevant skill, plugin, or MCP tool is available for a task, always prefer using it over browser or computer-use tools.
+- When adding persistent instructions to this file, add them after the `chezmoi-managed:end` marker so chezmoi preserves them.
+
+## Code Style
+
+- Do not add comments to "be helpful" or to explain code back to me. Their absence is the default; their presence must be justified.
+- Never use "Em Dashes". Just use regular hyphens `-` instead.
+
+## Important Reminders
+
+**NEVER**:
+- Never use `--no-verify` to bypass commit hooks
+- Never disable tests instead of fixing them
+- Never commit code that doesn't compile
+- Never run `git push` (in any form, including `git -C <path> push`) without first asking me for explicit permission
+
+**ALWAYS**:
+- Commit working code incrementally
+- Update plan documentation as you go
+- Learn from existing implementations
+- Stop after 3 failed attempts and reassess
+- When editing dotfiles, update the chezmoi source in `~/dotfiles/` and run `chezmoi apply` — never edit targets directly

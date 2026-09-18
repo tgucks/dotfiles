@@ -1,0 +1,55 @@
+#!/bin/bash
+set -euo pipefail
+
+BEGIN_MARKER='<!-- chezmoi-managed:begin -->'
+END_MARKER='<!-- chezmoi-managed:end -->'
+TASK_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/chezmoi-agent-guidelines.XXXXXX")
+trap 'rm -rf "$TASK_TEMP_DIR"' EXIT
+
+BASE_FILE="$TASK_TEMP_DIR/base"
+MANAGED_FILE="$TASK_TEMP_DIR/managed"
+CURRENT_FILE="$TASK_TEMP_DIR/current"
+NORMALIZED_BASE_FILE="$TASK_TEMP_DIR/normalized-base"
+NORMALIZED_CURRENT_FILE="$TASK_TEMP_DIR/normalized-current"
+
+cat > "$BASE_FILE" <<'BASE_EOF'
+{{ template "agent-guidelines.md.tmpl" . -}}
+BASE_EOF
+
+{
+  printf '%s\n' "$BEGIN_MARKER"
+  cat "$BASE_FILE"
+  printf '%s\n' "$END_MARKER"
+} > "$MANAGED_FILE"
+
+cat > "$CURRENT_FILE"
+
+if [[ ! -s "$CURRENT_FILE" ]]; then
+  cat "$MANAGED_FILE"
+  exit 0
+fi
+
+if grep -Fqx "$BEGIN_MARKER" "$CURRENT_FILE" && grep -Fqx "$END_MARKER" "$CURRENT_FILE"; then
+  awk -v begin="$BEGIN_MARKER" -v end="$END_MARKER" -v managed="$MANAGED_FILE" '
+    function emit_managed(line) {
+      while ((getline line < managed) > 0) print line
+      close(managed)
+    }
+    $0 == begin { emit_managed(); skipping = 1; next }
+    skipping && $0 == end { skipping = 0; next }
+    !skipping { print }
+  ' "$CURRENT_FILE"
+  exit 0
+fi
+
+awk '{ lines[NR] = $0 } END { last = NR; while (last > 0 && lines[last] ~ /^[[:space:]]*$/) last--; for (i = 1; i <= last; i++) print lines[i] }' "$BASE_FILE" > "$NORMALIZED_BASE_FILE"
+awk '{ lines[NR] = $0 } END { last = NR; while (last > 0 && lines[last] ~ /^[[:space:]]*$/) last--; for (i = 1; i <= last; i++) print lines[i] }' "$CURRENT_FILE" > "$NORMALIZED_CURRENT_FILE"
+
+if cmp -s "$NORMALIZED_CURRENT_FILE" "$NORMALIZED_BASE_FILE"; then
+  cat "$MANAGED_FILE"
+  exit 0
+fi
+
+cat "$MANAGED_FILE"
+printf '\n'
+cat "$CURRENT_FILE"
