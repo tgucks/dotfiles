@@ -5,6 +5,10 @@
 - When working on macOS, always account for BSD tool differences (e.g., `find`, `sed -i`) — do not assume GNU/Linux behavior. Test commands mentally against macOS before suggesting them.
 - Default shell is zsh: prefer zsh-compatible syntax for snippets, aliases, and one-liners. Mind differences from bash in arrays, parameter expansion, and `read` flags.
 
+## Python
+
+- Before running Python or its packages, check for a virtual environment (e.g., `.venv/`, `venv/`, `uv`, `poetry`) and use it instead of the system Python.
+
 ## Tools section
 
 - When a relevant skill, plugin, or MCP tool is available for a task, always prefer using it over browser or computer-use tools.
