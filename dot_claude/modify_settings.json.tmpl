@@ -1,6 +1,7 @@
 #!/bin/bash
 # Merges managed settings into ~/.claude/settings.json
 # Preserves keys that Claude sets at runtime (e.g., model)
+# permissions.{allow,deny,ask} are unioned so manually added rules survive
 
 DESIRED=$(cat <<'MANAGED'
 {
@@ -66,6 +67,8 @@ DESIRED=$(cat <<'MANAGED'
       "Grep",
       "mcp__plugin_context7_context7__resolve-library-id",
       "mcp__plugin_context7_context7__query-docs",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
       "Bash(git blame:*)",
       "Bash(git check-ignore:*)",
       "Bash(git describe:*)",
@@ -146,5 +149,10 @@ echo "$CURRENT" | jq --argjson desired "$DESIRED" '
     elif ($a | type) == "array" and ($b | type) == "array" then
       $b
     else $b end;
-  deepmerge(.; $desired)
+  . as $current
+  | deepmerge(.; $desired)
+  | reduce ("allow", "deny", "ask") as $k (.;
+      ($desired.permissions[$k] // []) as $managed
+      | .permissions[$k] = $managed + (($current.permissions[$k] // []) - $managed)
+    )
 '
