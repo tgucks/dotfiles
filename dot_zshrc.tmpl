@@ -117,7 +117,8 @@ _cache_eval minikube-completion minikube completion zsh
 export RIPGREP_CONFIG_PATH="$HOME/.config/.ripgreprc"
 
 # --- PostgreSQL / pspg ---
-export PSQLRC="$HOME/.config/psql/config"
+# Alias, not export: scripts and test runners that call psql must not inherit the rc.
+alias psql='PSQLRC="$HOME/.config/psql/config" psql'
 export PSPG_CONF="$HOME/.config/pspg/config"
 export PSPG="-X --direct-color --custom-style=catppuccin --only-for-tables"
 

@@ -30,7 +30,7 @@ Machine-specific values (git identity, API URLs, machine type) are stored in `~/
 | `dot_tmux.conf` | `~/.tmux.conf` |
 | `dot_config/tmux/` | `~/.config/tmux/` (copy-mode reflow script) |
 | `dot_gitconfig.tmpl` | `~/.gitconfig` |
-| `dot_psqlrc` | `~/.psqlrc` |
+| `dot_config/psql/config` | `~/.config/psql/config` (loaded only by the interactive `psql` alias) |
 | `dot_config/nvim/` | `~/.config/nvim/` |
 | `dot_config/ghostty/config` | `~/.config/ghostty/config` |
 | `dot_config/bat/config` | `~/.config/bat/config` |
